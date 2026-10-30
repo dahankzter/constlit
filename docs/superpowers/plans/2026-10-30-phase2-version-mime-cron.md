@@ -68,7 +68,7 @@
 - Modify:
   - `constlit/Cargo.toml` (feature `semver`, optional dep and dev-dep);
   - `constlit-macros/Cargo.toml` (dev-dep `semver = "1"` for the oracle);
-  - `constlit/src/lib.rs` (`mod version; pub use version::Version;` and a documented `pub use constlit_macros::version;`);
+  - `constlit/src/lib.rs` (`mod version; pub use version::Version;` and a documented `pub use constlit_macros::version;`). The macro doc says plainly that it follows SemVer 2.0.0 (https://semver.org) to the letter, so `"v1.2.3"` is rejected: the `v` belongs to tag names, not versions (spec FAQ "Is v1.2.3 a semantic version?"). Show it as a `compile_fail` doctest;
   - `constlit-macros/src/lib.rs` (`#[proc_macro] pub fn version`).
 - Test:
   - unit tests in both `version.rs` files;
