@@ -1,0 +1,5 @@
+error: IPv6 socket addresses need brackets, like "[::1]:443"
+ --> tests/ui/addr_no_brackets.rs:2:29
+  |
+2 |     let _ = constlit::addr!("::1:443");
+  |                             ^^^^^^^^^

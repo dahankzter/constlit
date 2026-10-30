@@ -1,0 +1,21 @@
+[package]
+name = "constlit"
+description = "Compile-time checked literals: \"1h30m\", \"64 KiB\", \"10.0.0.0/8\" become typed constants"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["literal", "const", "duration", "cidr", "macro"]
+categories = ["no-std", "rust-patterns", "date-and-time", "network-programming"]
+
+[features]
+ipnet = ["dep:ipnet"]
+
+[dependencies]
+constlit-macros = { path = "../constlit-macros", version = "=0.1.0" }
+ipnet = { version = "2", optional = true, default-features = false }
+
+[dev-dependencies]
+trybuild = "1"
+ipnet = "2"

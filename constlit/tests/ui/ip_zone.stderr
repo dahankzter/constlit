@@ -1,0 +1,5 @@
+error: zone suffixes like %eth0 can't be stored in Ipv6Addr; remove it
+ --> tests/ui/ip_zone.rs:2:27
+  |
+2 |     let _ = constlit::ip!("fe80::1%eth0");
+  |                           ^^^^^^^^^^^^^^

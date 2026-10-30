@@ -1,0 +1,5 @@
+error: missing unit after 30; write e.g. "30s" or "30ms"
+ --> tests/ui/dur_bare_number.rs:2:28
+  |
+2 |     let _ = constlit::dur!("30");
+  |                            ^^^^

@@ -1,0 +1,5 @@
+error: unknown unit `hr`; use `h` for hours
+ --> tests/ui/dur_unknown_unit.rs:2:28
+  |
+2 |     let _ = constlit::dur!("5hr");
+  |                            ^^^^^

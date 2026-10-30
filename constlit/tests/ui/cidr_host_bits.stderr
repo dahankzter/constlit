@@ -1,0 +1,5 @@
+error: host bits are set in 10.1.2.3/8; did you mean "10.0.0.0/8"?
+ --> tests/ui/cidr_host_bits.rs:2:29
+  |
+2 |     let _ = constlit::cidr!("10.1.2.3/8");
+  |                             ^^^^^^^^^^^^

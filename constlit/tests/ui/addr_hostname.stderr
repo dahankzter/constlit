@@ -1,0 +1,5 @@
+error: `localhost` is a hostname; addr! needs an IP address (looking up a name isn't a literal)
+ --> tests/ui/addr_hostname.rs:2:29
+  |
+2 |     let _ = constlit::addr!("localhost:80");
+  |                             ^^^^^^^^^^^^^^

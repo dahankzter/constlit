@@ -1,0 +1,5 @@
+error: weeks, months and years are not supported (months and years have no fixed length); write days instead, like "14d"
+ --> tests/ui/dur_months.rs:2:28
+  |
+2 |     let _ = constlit::dur!("1mo");
+  |                            ^^^^^

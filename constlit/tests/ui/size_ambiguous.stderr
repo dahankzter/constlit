@@ -1,0 +1,5 @@
+error: `kb` is ambiguous: write `KiB` (1024 bytes) or `KB` (1000 bytes)
+ --> tests/ui/size_ambiguous.rs:2:29
+  |
+2 |     let _ = constlit::size!("64 kb");
+  |                             ^^^^^^^

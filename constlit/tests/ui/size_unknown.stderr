@@ -1,0 +1,5 @@
+error: unknown unit `XB`; use B, KB/MB/GB/TB/PB (powers of 1000) or KiB/MiB/GiB/TiB/PiB (powers of 1024)
+ --> tests/ui/size_unknown.rs:2:29
+  |
+2 |     let _ = constlit::size!("1 XB");
+  |                             ^^^^^^
