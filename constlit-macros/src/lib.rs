@@ -1,9 +1,12 @@
 //! Procedural macros for `constlit`. Use them through the `constlit` crate.
 
+mod cron;
 mod duration;
 mod input;
+mod media_type;
 mod net;
 mod size;
+mod version;
 
 use quote::quote;
 
@@ -62,6 +65,47 @@ pub fn cidr(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             net::Ip::V4(_) => quote!(::constlit::Ipv4Cidr::__new_unchecked(#ip_tokens, #prefix)),
             net::Ip::V6(_) => quote!(::constlit::Ipv6Cidr::__new_unchecked(#ip_tokens, #prefix)),
         })
+    })
+    .into()
+}
+
+/// A SemVer 2.0.0 version literal as a `constlit::Version` constant.
+#[proc_macro]
+pub fn version(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"1.2.3\"", |s| {
+        let (major, minor, patch, pre, build) = version::parse_version(s)?;
+        Ok(quote!(::constlit::Version::__new_unchecked(#major, #minor, #patch, #pre, #build)))
+    })
+    .into()
+}
+
+/// A media type literal as a `constlit::MediaType` constant.
+#[proc_macro]
+pub fn mime(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"application/json\"", |s| {
+        let (essence, slash, params) = media_type::parse_media_type(s)?;
+        let params = params.iter().map(|(name, value)| quote!((#name, #value)));
+        Ok(quote!(::constlit::MediaType::__new_unchecked(#essence, #slash, &[#(#params),*])))
+    })
+    .into()
+}
+
+/// A cron expression literal as a `constlit::CronSpec` constant.
+#[proc_macro]
+pub fn cron(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"*/5 * * * *\"", |s| {
+        let cron::Cron {
+            minutes,
+            hours,
+            days,
+            months,
+            weekdays,
+            dom_star,
+            dow_star,
+        } = cron::parse_cron(s)?;
+        Ok(quote!(::constlit::CronSpec::__new_unchecked(
+            #s, #minutes, #hours, #days, #months, #weekdays, #dom_star, #dow_star
+        )))
     })
     .into()
 }

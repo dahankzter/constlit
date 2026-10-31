@@ -1,0 +1,5 @@
+error: @reboot runs at startup, not on a schedule, so it has no CronSpec
+ --> tests/ui/cron_reboot.rs:2:29
+  |
+2 |     let _ = constlit::cron!("@reboot");
+  |                             ^^^^^^^^^

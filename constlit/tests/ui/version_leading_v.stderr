@@ -1,0 +1,5 @@
+error: remove the leading "v"; write "1.2.3"
+ --> tests/ui/version_leading_v.rs:2:32
+  |
+2 |     let _ = constlit::version!("v1.2.3");
+  |                                ^^^^^^^^

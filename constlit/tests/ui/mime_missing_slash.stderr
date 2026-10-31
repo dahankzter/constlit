@@ -1,0 +1,5 @@
+error: missing `/`; write type/subtype, like "application/json"
+ --> tests/ui/mime_missing_slash.rs:2:29
+  |
+2 |     let _ = constlit::mime!("json");
+  |                             ^^^^^^

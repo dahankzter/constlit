@@ -1,0 +1,5 @@
+error: missing patch version; write e.g. "1.2.0"
+ --> tests/ui/version_missing_patch.rs:2:32
+  |
+2 |     let _ = constlit::version!("1.2");
+  |                                ^^^^^

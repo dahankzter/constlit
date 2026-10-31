@@ -11,11 +11,28 @@ categories = ["no-std", "rust-patterns", "date-and-time", "network-programming"]
 
 [features]
 ipnet = ["dep:ipnet"]
+semver = ["dep:semver"]
+# Adds `MediaType::to_mime`. The `mime` crate needs `std`.
+mime = ["dep:mime"]
+# `CronSpec::next_after` for jiff date-times.
+jiff = ["dep:jiff"]
+# `CronSpec::next_after` for chrono date-times.
+chrono = ["dep:chrono"]
 
 [dependencies]
 constlit-macros = { path = "../constlit-macros", version = "=0.1.0" }
 ipnet = { version = "2", optional = true, default-features = false }
+semver = { version = "1", optional = true, default-features = false }
+mime = { version = "0.3", optional = true }
+jiff = { version = "0.2", optional = true, default-features = false, features = ["alloc"] }
+chrono = { version = "0.4", optional = true, default-features = false }
 
 [dev-dependencies]
 trybuild = "1"
 ipnet = "2"
+semver = "1"
+mime = "0.3"
+croner = { version = "4", features = ["jiff"] }
+jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
+chrono = "0.4"
+chrono-tz = "0.10"

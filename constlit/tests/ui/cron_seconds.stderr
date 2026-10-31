@@ -1,0 +1,5 @@
+error: expected 5 fields (minute hour day-of-month month day-of-week), found 6; seconds fields aren't supported
+ --> tests/ui/cron_seconds.rs:2:29
+  |
+2 |     let _ = constlit::cron!("0 */5 * * * *");
+  |                             ^^^^^^^^^^^^^^^

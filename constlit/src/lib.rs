@@ -1,11 +1,27 @@
 //! Compile-time checked literals that become typed constants.
 #![no_std]
 
+#[cfg(feature = "mime")]
+extern crate alloc;
+
+// Only `next_after` uses it until the date types arrive.
+#[cfg_attr(not(any(feature = "jiff", feature = "chrono")), allow(dead_code))]
+mod calendar;
 mod cidr;
+mod cron;
+#[cfg(any(feature = "jiff", feature = "chrono"))]
+mod cron_time;
+mod media_type;
 mod size;
+mod version;
 
 pub use cidr::{Cidr, CidrError, Ipv4Cidr, Ipv6Cidr};
+pub use cron::CronSpec;
+#[cfg(any(feature = "jiff", feature = "chrono"))]
+pub use cron_time::CronTime;
+pub use media_type::MediaType;
 pub use size::ByteSize;
+pub use version::Version;
 
 /// A duration literal, checked at compile time, as a [`core::time::Duration`].
 ///
@@ -99,3 +115,73 @@ pub use constlit_macros::addr;
 /// let _ = constlit::cidr!("10.1.2.3/8"); // did you mean "10.0.0.0/8"?
 /// ```
 pub use constlit_macros::cidr;
+
+/// A version literal, checked at compile time against
+/// [SemVer 2.0.0](https://semver.org), as a [`Version`].
+///
+/// The grammar is SemVer's to the letter: `MAJOR.MINOR.PATCH`, then an optional
+/// `-pre.release` and `+build.metadata`. Comparison uses SemVer precedence.
+///
+/// ```
+/// use constlit::{Version, version};
+/// const MIN: Version = version!("1.4.0-rc.2");
+/// assert!(MIN < version!("1.4.0"));
+/// assert_eq!(MIN.pre(), "rc.2");
+/// ```
+///
+/// A leading `v`, as in git tags, is a compile error: SemVer says `v1.2.3` is not a
+/// semantic version, the `v` belongs to the tag name
+/// ([FAQ](https://semver.org/#is-v123-a-semantic-version)). Write `"1.2.3"`.
+///
+/// ```compile_fail
+/// let _ = constlit::version!("v1.2.3");
+/// ```
+pub use constlit_macros::version;
+
+/// A media type literal (MIME type), checked at compile time, as a [`MediaType`].
+///
+/// The grammar is `type/subtype`, then optional `; name=value` parameters, where a
+/// value is a token or a quoted string. Names are case-insensitive and stored lowercase.
+///
+/// ```
+/// use constlit::{MediaType, mime};
+/// const HTML: MediaType = mime!("text/html; charset=UTF-8");
+/// assert_eq!(HTML.essence(), "text/html");
+/// assert_eq!(HTML.param("charset"), Some("utf-8"));
+/// ```
+///
+/// Wildcards like `"text/*"` are media ranges for `Accept` headers, not media types,
+/// so they are a compile error:
+///
+/// ```compile_fail
+/// let _ = constlit::mime!("text/*");
+/// ```
+pub use constlit_macros::mime;
+
+/// A cron expression, checked at compile time, as a [`CronSpec`].
+///
+/// Five fields, `minute hour day-of-month month day-of-week`, separated by spaces
+/// or tabs. Each is a `,`-list of `*`, `*/n`, `a`, `a-b`, `a-b/n` or `a/n`
+/// (`a` to the field's end in steps of `n`). Months and weekdays also take names
+/// (`JAN`, `mon`); day of week is 0-7, where both 0 and 7 are Sunday. The shortcuts
+/// `@yearly`, `@annually`, `@monthly`, `@weekly`, `@daily`, `@midnight` and
+/// `@hourly` work too.
+///
+/// ```
+/// use constlit::{CronSpec, cron};
+/// const WORKDAYS: CronSpec = cron!("0 9-17 * * MON-FRI");
+/// // 9:00 on Friday 30 October 2026
+/// assert!(WORKDAYS.matches(0, 9, 30, 10, 5));
+/// assert!(!WORKDAYS.matches(0, 9, 31, 10, 6));
+/// ```
+///
+/// With the `jiff` or `chrono` feature, [`CronSpec::next_after`] finds the next run
+/// time after a date-time, honoring daylight-saving changes in zoned types.
+///
+/// A seconds field, Quartz syntax (`?`, `L`, `W`, `#`), `@reboot` and values out of
+/// range are compile errors:
+///
+/// ```compile_fail
+/// let _ = constlit::cron!("0 */5 * * * *");
+/// ```
+pub use constlit_macros::cron;

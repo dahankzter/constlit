@@ -1,0 +1,5 @@
+error: hour 25 is out of range (0-23)
+ --> tests/ui/cron_out_of_range.rs:2:29
+  |
+2 |     let _ = constlit::cron!("0 25 * * *");
+  |                             ^^^^^^^^^^^^

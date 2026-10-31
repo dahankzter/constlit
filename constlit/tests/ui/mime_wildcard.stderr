@@ -1,0 +1,5 @@
+error: `*` wildcards are media ranges for Accept headers, not media types
+ --> tests/ui/mime_wildcard.rs:2:29
+  |
+2 |     let _ = constlit::mime!("text/*");
+  |                             ^^^^^^^^
