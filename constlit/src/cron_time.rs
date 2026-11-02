@@ -46,7 +46,12 @@ fn next_zoned<Z: Ord>(
             // Wildcard schedules also run in the second pass of a fold.
             Local::Two(early, late) if early <= *t && spec.time_star => late,
             Local::Two(early, _) => early,
-            // A skipped minute runs at the first instant after the gap.
+            // Vixie: wildcard schedules skip the minutes a gap jumps over.
+            Local::Gap if spec.time_star && !spec.catch_up_gaps => {
+                cursor = candidate;
+                continue;
+            }
+            // Others run a skipped minute at the first instant after the gap.
             Local::Gap => {
                 let mut m = candidate.next();
                 loop {

@@ -20,6 +20,8 @@ pub struct CronSpec {
     /// The minute or hour field starts with `*`: the schedule runs on real time
     /// when the clocks go back.
     pub(crate) time_star: bool,
+    /// Set by [`catch_up_gaps`](Self::catch_up_gaps).
+    pub(crate) catch_up_gaps: bool,
 }
 
 impl CronSpec {
@@ -46,6 +48,27 @@ impl CronSpec {
             dom_star,
             dow_star,
             time_star,
+            catch_up_gaps: false,
+        }
+    }
+
+    /// This schedule, but in [`next_after`](Self::next_after) every time skipped by
+    /// a daylight-saving gap runs once, at the first instant after the gap.
+    ///
+    /// By default only schedules with fixed minute and hour fields catch up, as in
+    /// Vixie cron: `30 * * * *` skips 02:30 on the night the clocks jump from 02:00
+    /// to 03:00, while `cron!("30 * * * *").catch_up_gaps()` runs at 03:00 instead.
+    /// The repeated hour when the clocks go back is unaffected.
+    ///
+    /// ```
+    /// use constlit::{CronSpec, cron};
+    /// const BILLING: CronSpec = cron!("30 * * * *").catch_up_gaps();
+    /// assert_ne!(BILLING, cron!("30 * * * *"));
+    /// ```
+    pub const fn catch_up_gaps(self) -> Self {
+        Self {
+            catch_up_gaps: true,
+            ..self
         }
     }
 
@@ -143,15 +166,18 @@ impl CronSpec {
     /// The first time this schedule fires strictly after `t`, in `t`'s own type
     /// and, for zoned types, in `t`'s time zone. The result has zero seconds.
     ///
-    /// For a zoned `t`, the schedule runs on local wall-clock time:
-    /// - a minute skipped by a daylight-saving gap fires once, at the first
-    ///   instant after the gap;
-    /// - a minute repeated by a fold fires once, at its first occurrence, when the
-    ///   minute and hour fields are both fixed, like `30 2 * * *`;
+    /// For a zoned `t`, the schedule runs on local wall-clock time and handles
+    /// daylight-saving changes as Vixie cron does:
+    /// - when the minute and hour fields are both fixed, like `30 2 * * *`, a time
+    ///   skipped by a gap runs once, at the first instant after the gap, and a
+    ///   time repeated by a fold runs once, at its first occurrence;
     /// - when the minute or hour field starts with `*`, like `*/5 * * * *`,
-    ///   `30 * * * *` or `@hourly`, the schedule runs on real time, as in Vixie
-    ///   cron, and also fires in the second pass of a repeated hour: from 02:55 in
-    ///   the first pass, the next run is 02:00 after the clocks went back.
+    ///   `30 * * * *` or `@hourly`, the schedule runs on real time: times skipped
+    ///   by a gap don't run, and a repeated hour runs twice. From 02:55 in the
+    ///   first pass, `*/5` runs next at 02:00 after the clocks went back.
+    ///
+    /// [`catch_up_gaps`](Self::catch_up_gaps) makes every schedule run skipped times
+    /// after the gap.
     ///
     /// `None` means the schedule never fires (like `0 0 30 2 *`), or the next
     /// time doesn't fit in `T`.

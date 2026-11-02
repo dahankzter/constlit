@@ -1,6 +1,6 @@
 #![cfg(all(feature = "jiff", feature = "chrono"))]
 
-use constlit::cron;
+use constlit::{CronSpec, cron};
 use jiff::Zoned;
 use jiff::civil::{DateTime, date};
 use jiff::tz::TimeZone;
@@ -15,6 +15,17 @@ fn civil(s: &str) -> DateTime {
 
 fn zoned(s: &str) -> Zoned {
     s.parse().unwrap()
+}
+
+/// The next `n` runs of `spec` after `from`, as jiff writes them.
+fn runs(spec: CronSpec, from: &str, n: usize) -> Vec<String> {
+    let mut t = zoned(from);
+    (0..n)
+        .map(|_| {
+            t = spec.next_after(&t).unwrap();
+            t.to_string()
+        })
+        .collect()
 }
 
 #[test]
@@ -50,6 +61,51 @@ fn dst_gap_jiff() {
     assert_eq!(second, zoned("2026-03-30T02:30+02:00[Europe/Stockholm]"));
 }
 
+/// As in Vixie cron, schedules whose minute or hour field starts with `*` skip the
+/// minutes the clocks jump over, unless made with `catch_up_gaps`.
+#[test]
+fn dst_gap_wildcard_jiff() {
+    let at = |s: &str| format!("2026-03-29T{s}[Europe/Stockholm]");
+    let day_before = "2026-03-28T12:00[Europe/Stockholm]";
+    assert_eq!(
+        runs(cron!("30 * * * *"), &at("01:40+01:00"), 2),
+        [at("03:30:00+02:00"), at("04:30:00+02:00")]
+    );
+    assert_eq!(
+        runs(cron!("*/5 * * * *"), &at("01:55+01:00"), 1),
+        [at("03:00:00+02:00")]
+    );
+    assert_eq!(
+        runs(cron!("* 2 * * *"), day_before, 1),
+        ["2026-03-30T02:00:00+02:00[Europe/Stockholm]"]
+    );
+
+    const CATCH_UP: CronSpec = cron!("30 * * * *").catch_up_gaps();
+    assert_eq!(
+        runs(CATCH_UP, &at("01:40+01:00"), 2),
+        [at("03:00:00+02:00"), at("03:30:00+02:00")]
+    );
+    assert_eq!(
+        runs(cron!("* 2 * * *").catch_up_gaps(), day_before, 2),
+        [
+            at("03:00:00+02:00"),
+            "2026-03-30T02:00:00+02:00[Europe/Stockholm]".to_string(),
+        ]
+    );
+    assert_ne!(cron!("30 * * * *"), CATCH_UP);
+    // Fixed schedules already catch up.
+    assert_eq!(
+        runs(cron!("30 2 * * *").catch_up_gaps(), day_before, 2),
+        runs(cron!("30 2 * * *"), day_before, 2)
+    );
+    // The repeated hour is unaffected.
+    let fold = "2026-10-25T02:52+02:00[Europe/Stockholm]";
+    assert_eq!(
+        runs(cron!("*/5 * * * *").catch_up_gaps(), fold, 3),
+        runs(cron!("*/5 * * * *"), fold, 3)
+    );
+}
+
 #[test]
 fn dst_overlap_jiff() {
     let spec = cron!("30 2 * * *");
@@ -68,15 +124,6 @@ fn dst_overlap_jiff() {
 /// Vixie cron: when the clocks go back they fire through the repeated hour too.
 #[test]
 fn dst_overlap_wildcard_jiff() {
-    let runs = |spec: constlit::CronSpec, from: &str, n: usize| {
-        let mut t = zoned(from);
-        (0..n)
-            .map(|_| {
-                t = spec.next_after(&t).unwrap();
-                t.to_string()
-            })
-            .collect::<Vec<_>>()
-    };
     let at = |s: &str| format!("2026-10-25T{s}[Europe/Stockholm]");
     assert_eq!(
         runs(cron!("*/5 * * * *"), &at("02:52+02:00"), 4),
@@ -147,6 +194,17 @@ fn dst_chrono() {
     assert_eq!(
         to_jiff(spec.next_after(&first).unwrap()),
         "2026-10-26T02:30:00+01:00"
+    );
+
+    let half_past = cron!("30 * * * *");
+    let skipped = at(2026, 3, 29, 1, 40);
+    assert_eq!(
+        to_jiff(half_past.next_after(&skipped).unwrap()),
+        "2026-03-29T03:30:00+02:00"
+    );
+    assert_eq!(
+        to_jiff(half_past.catch_up_gaps().next_after(&skipped).unwrap()),
+        "2026-03-29T03:00:00+02:00"
     );
 
     let quarter = cron!("*/15 * * * *");
