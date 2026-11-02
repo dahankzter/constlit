@@ -11,6 +11,12 @@ fn mime_in_const() {
     );
 }
 
+#[test]
+fn equality_follows_parameter_order() {
+    assert_eq!(mime!("text/plain; a=1; b=2"), mime!("Text/Plain; A=1; B=2"));
+    assert_ne!(mime!("text/plain; a=1; b=2"), mime!("text/plain; b=2; a=1"));
+}
+
 #[cfg(feature = "mime")]
 #[test]
 fn to_mime() {
@@ -33,4 +39,5 @@ fn to_mime() {
 fn to_mime_unrepresentable() {
     assert!(mime!(r#"text/plain; a="""#).to_mime().is_err());
     assert!(mime!(r#"text/plain; a="x\"y""#).to_mime().is_err());
+    assert!(mime!("text/plain; a=\"x\ty\"").to_mime().is_err());
 }

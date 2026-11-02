@@ -5,6 +5,10 @@ use jiff::Zoned;
 use jiff::civil::{DateTime, date};
 use jiff::tz::TimeZone;
 
+#[path = "support/cron_gen.rs"]
+mod cron_gen;
+use cron_gen::{field, splitmix};
+
 fn civil(s: &str) -> DateTime {
     s.parse().unwrap()
 }
@@ -60,6 +64,64 @@ fn dst_overlap_jiff() {
     assert_eq!(spec.next_after(&inside).unwrap(), second);
 }
 
+/// Schedules whose minute or hour field starts with `*` run on real time, as in
+/// Vixie cron: when the clocks go back they fire through the repeated hour too.
+#[test]
+fn dst_overlap_wildcard_jiff() {
+    let runs = |spec: constlit::CronSpec, from: &str, n: usize| {
+        let mut t = zoned(from);
+        (0..n)
+            .map(|_| {
+                t = spec.next_after(&t).unwrap();
+                t.to_string()
+            })
+            .collect::<Vec<_>>()
+    };
+    let at = |s: &str| format!("2026-10-25T{s}[Europe/Stockholm]");
+    assert_eq!(
+        runs(cron!("*/5 * * * *"), &at("02:52+02:00"), 4),
+        [
+            at("02:55:00+02:00"),
+            at("02:00:00+01:00"),
+            at("02:05:00+01:00"),
+            at("02:10:00+01:00"),
+        ]
+    );
+    assert_eq!(
+        runs(cron!("*/5 * * * *"), &at("02:57:30+02:00"), 1),
+        [at("02:00:00+01:00")]
+    );
+    assert_eq!(
+        runs(cron!("*/5 * * * *"), &at("02:55+01:00"), 1),
+        [at("03:00:00+01:00")]
+    );
+    assert_eq!(
+        runs(cron!("30 * * * *"), &at("02:40+02:00"), 2),
+        [at("02:30:00+01:00"), at("03:30:00+01:00")]
+    );
+    assert_eq!(
+        runs(cron!("*/30 2 * * *"), &at("02:40+02:00"), 3),
+        [
+            at("02:00:00+01:00"),
+            at("02:30:00+01:00"),
+            "2026-10-26T02:00:00+01:00[Europe/Stockholm]".to_string(),
+        ]
+    );
+    assert_eq!(
+        runs(cron!("@hourly"), &at("01:30+02:00"), 3),
+        [
+            at("02:00:00+02:00"),
+            at("02:00:00+01:00"),
+            at("03:00:00+01:00")
+        ]
+    );
+    // A fixed minute and hour still runs once, even with a step or a list.
+    assert_eq!(
+        runs(cron!("0,30 2 * * *"), &at("02:40+02:00"), 1),
+        ["2026-10-26T02:00:00+01:00[Europe/Stockholm]".to_string()]
+    );
+}
+
 #[test]
 fn dst_chrono() {
     use chrono::TimeZone as _;
@@ -87,6 +149,14 @@ fn dst_chrono() {
         "2026-10-26T02:30:00+01:00"
     );
 
+    let quarter = cron!("*/15 * * * *");
+    let first = quarter.next_after(&at(2026, 10, 25, 2, 50)).unwrap();
+    assert_eq!(to_jiff(first), "2026-10-25T02:00:00+01:00");
+    assert_eq!(
+        to_jiff(quarter.next_after(&first).unwrap()),
+        "2026-10-25T02:15:00+01:00"
+    );
+
     let naive = chrono::NaiveDate::from_ymd_opt(2026, 10, 30)
         .unwrap()
         .and_hms_opt(10, 0, 30)
@@ -104,47 +174,6 @@ fn zoned_utc_matches_civil() {
         .next_after(&start.to_zoned(TimeZone::UTC).unwrap())
         .unwrap();
     assert_eq!(zoned_next.datetime(), civil_next);
-}
-
-fn splitmix(state: &mut u64) -> u64 {
-    *state = state.wrapping_add(0x9e37_79b9_7f4a_7c15);
-    let mut z = *state;
-    z = (z ^ (z >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
-    z = (z ^ (z >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
-    z ^ (z >> 31)
-}
-
-/// One random field and its mask: `*` or 1-3 items from `min..=max`.
-/// `day_field` leaves out `*`-prefixed items other than a bare `*`, where croner's
-/// day rule differs; `matches_vixie` pins those.
-fn field(state: &mut u64, min: u64, max: u64, day_field: bool) -> (String, u64) {
-    let range =
-        |a: u64, b: u64, step: u64| (a..=b).step_by(step as usize).fold(0, |m, v| m | 1 << v);
-    if splitmix(state).is_multiple_of(4) {
-        return ("*".into(), range(min, max, 1));
-    }
-    let span = max - min + 1;
-    let mut r = |n: u64| splitmix(state) % n;
-    let mut mask = 0;
-    let items: Vec<String> = (0..1 + r(3))
-        .map(|_| {
-            let a = min + r(span);
-            let b = a + r(max - a + 1);
-            let step = 1 + r(span.min(15));
-            let (text, bits) = match (r(5), day_field) {
-                (0, _) => (a.to_string(), range(a, a, 1)),
-                (1, _) => (format!("{a}-{b}"), range(a, b, 1)),
-                (2, _) => (format!("{a}-{b}/{step}"), range(a, b, step)),
-                (3, false) => (format!("*/{step}"), range(min, max, step)),
-                // croner rejects `a/n`; `a-max/n` means the same and `cron_values` pins `a/n`.
-                (_, false) => (format!("{a}-{max}/{step}"), range(a, max, step)),
-                (_, true) => (format!("{a},{b}"), range(a, a, 1) | range(b, b, 1)),
-            };
-            mask |= bits;
-            text
-        })
-        .collect();
-    (items.join(","), mask)
 }
 
 #[test]
@@ -174,6 +203,7 @@ fn cron_oracle() {
             mask(4) as u8,
             fields[2].0 == "*",
             fields[4].0 == "*",
+            fields[0].0.starts_with('*') || fields[1].0.starts_with('*'),
         );
         let theirs: croner::Cron = expr.parse().unwrap_or_else(|e| panic!("{expr}: {e}"));
         let seconds = (splitmix(&mut state) % 4_102_444_800) as i64;

@@ -1,6 +1,9 @@
 //! Procedural macros for `constlit`. Use them through the `constlit` crate.
 
 mod cron;
+#[cfg(test)]
+#[path = "../../constlit/tests/support/cron_gen.rs"]
+mod cron_gen;
 mod duration;
 mod input;
 mod media_type;
@@ -102,9 +105,10 @@ pub fn cron(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             weekdays,
             dom_star,
             dow_star,
+            time_star,
         } = cron::parse_cron(s)?;
         Ok(quote!(::constlit::CronSpec::__new_unchecked(
-            #s, #minutes, #hours, #days, #months, #weekdays, #dom_star, #dow_star
+            #s, #minutes, #hours, #days, #months, #weekdays, #dom_star, #dow_star, #time_star
         )))
     })
     .into()

@@ -15,6 +15,8 @@ pub struct Cron {
     pub dom_star: bool,
     /// The day-of-week field starts with `*`.
     pub dow_star: bool,
+    /// The minute or hour field starts with `*`.
+    pub time_star: bool,
 }
 
 const SHORTCUTS: [(&str, &str); 7] = [
@@ -108,15 +110,18 @@ pub fn parse_cron(s: &str) -> Result<Cron, String> {
     if s.starts_with(char::is_whitespace) || s.ends_with(char::is_whitespace) {
         return Err("remove the spaces around the literal".into());
     }
+    if s.contains(['\n', '\r']) {
+        return Err("line break in cron expression; write it on one line".into());
+    }
     if s.starts_with('@') {
         return shortcut(s);
     }
     let fields: Vec<&str> = s.split([' ', '\t']).filter(|f| !f.is_empty()).collect();
     if fields.len() != 5 {
-        let hint = if fields.len() == 6 {
-            "; seconds fields aren't supported"
-        } else {
-            ""
+        let hint = match fields.len() {
+            6 => "; seconds fields aren't supported",
+            7 => "; Quartz's seconds and year fields aren't supported",
+            _ => "",
         };
         return Err(format!(
             "expected 5 fields (minute hour day-of-month month day-of-week), found {}{hint}",
@@ -137,6 +142,7 @@ pub fn parse_cron(s: &str) -> Result<Cron, String> {
         weekdays: weekdays as u8,
         dom_star: fields[2].starts_with('*'),
         dow_star: fields[4].starts_with('*'),
+        time_star: fields[0].starts_with('*') || fields[1].starts_with('*'),
     })
 }
 
@@ -240,9 +246,12 @@ fn value(text: &str, field: &Field) -> Result<u32, String> {
             )),
         };
     }
-    let has_digit = text.bytes().any(|b| b.is_ascii_digit());
-    let quartz = text.contains(['L', 'W']);
-    if quartz && (has_digit || field.names.is_empty() || text == "L" || text == "LW") {
+    // Quartz's `L`, `LW`, `15W`, `5L`, in either case.
+    let letters = text.trim_start_matches(|c: char| c.is_ascii_digit());
+    if ["L", "W", "LW"]
+        .iter()
+        .any(|q| letters.eq_ignore_ascii_case(q))
+    {
         return Err(NONSTANDARD.into());
     }
     if field.names.is_empty() {
@@ -294,9 +303,10 @@ mod tests {
             (c.days, c.months, c.weekdays),
             (ALL_DAYS, ALL_MONTHS, ALL_WEEKDAYS)
         );
-        assert!(c.dom_star && c.dow_star);
+        assert!(c.dom_star && c.dow_star && c.time_star);
 
         let c = ok("0 9-17 * * MON-FRI");
+        assert!(!c.time_star);
         assert_eq!(c.minutes, 1);
         assert_eq!(u64::from(c.hours), bits(9..=17));
         assert_eq!(u64::from(c.weekdays), bits(1..=5));
@@ -316,6 +326,11 @@ mod tests {
         assert_eq!(ok("0\t0  * *\t*").minutes, 1);
         assert_eq!(ok("59 23 31 12 *").minutes, 1 << 59);
         assert_eq!(ok("* * * * *").minutes, ALL_MINUTES);
+        assert!(ok("0 * * * *").time_star);
+        assert!(ok("*/30 2 * * *").time_star);
+        assert!(ok("@hourly").time_star);
+        assert!(!ok("0-59/5 2 * * *").time_star);
+        assert!(!ok("@daily").time_star);
     }
 
     #[test]
@@ -388,6 +403,18 @@ mod tests {
             ),
             ("% * * * *", "invalid character `%` in minute field"),
             (
+                "0 0 * *\n*",
+                "line break in cron expression; write it on one line",
+            ),
+            (
+                "0 0\r\n* * *",
+                "line break in cron expression; write it on one line",
+            ),
+            (
+                "hello * * * *",
+                "names are only allowed in the month and day-of-week fields",
+            ),
+            (
                 "*-5 * * * *",
                 "`*` can't be part of `*`; write `*` alone or a number",
             ),
@@ -412,9 +439,51 @@ mod tests {
             ("0 0 LW * *", nonstandard),
             ("0 0 * * 5#3", nonstandard),
             ("0 0 * * 5L", nonstandard),
+            ("0 0 l * *", nonstandard),
+            ("0 0 15w * *", nonstandard),
+            ("0 0 * * 5l", nonstandard),
+            ("0 0 * * l", nonstandard),
+            (
+                "0 0 0 1 * ? 2026",
+                "expected 5 fields (minute hour day-of-month month day-of-week), found 7; Quartz's seconds and year fields aren't supported",
+            ),
         ];
         for (input, message) in cases {
             assert_eq!(err(input), message, "input {input:?}");
+        }
+    }
+
+    /// The croner oracle in `constlit/tests/cron_next.rs` builds specs from the
+    /// generator's masks; this checks `parse_cron` reads the same text the same way.
+    #[test]
+    fn cron_generator_masks() {
+        use crate::cron_gen::field;
+        let mut state = 17u64;
+        for _ in 0..20_000 {
+            let fields = [
+                field(&mut state, 0, 59, false),
+                field(&mut state, 0, 23, false),
+                field(&mut state, 1, 31, true),
+                field(&mut state, 1, 12, false),
+                field(&mut state, 0, 6, true),
+            ];
+            let expr = fields
+                .iter()
+                .map(|(text, _)| text.as_str())
+                .collect::<Vec<_>>()
+                .join(" ");
+            let mask = |i: usize| fields[i].1;
+            let expected = Cron {
+                minutes: mask(0),
+                hours: mask(1) as u32,
+                days: mask(2) as u32,
+                months: mask(3) as u16,
+                weekdays: mask(4) as u8,
+                dom_star: fields[2].0 == "*",
+                dow_star: fields[4].0 == "*",
+                time_star: fields[0].0.starts_with('*') || fields[1].0.starts_with('*'),
+            };
+            assert_eq!(ok(&expr), expected, "{expr}");
         }
     }
 }

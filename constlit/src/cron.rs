@@ -17,6 +17,9 @@ pub struct CronSpec {
     weekdays: u8,
     dom_star: bool,
     dow_star: bool,
+    /// The minute or hour field starts with `*`: the schedule runs on real time
+    /// when the clocks go back.
+    pub(crate) time_star: bool,
 }
 
 impl CronSpec {
@@ -31,6 +34,7 @@ impl CronSpec {
         weekdays: u8,
         dom_star: bool,
         dow_star: bool,
+        time_star: bool,
     ) -> Self {
         Self {
             source,
@@ -41,6 +45,7 @@ impl CronSpec {
             weekdays,
             dom_star,
             dow_star,
+            time_star,
         }
     }
 
@@ -141,10 +146,12 @@ impl CronSpec {
     /// For a zoned `t`, the schedule runs on local wall-clock time:
     /// - a minute skipped by a daylight-saving gap fires once, at the first
     ///   instant after the gap;
-    /// - a minute repeated by a fold fires once, at its first occurrence. This holds
-    ///   for every schedule, so `*/5 * * * *` doesn't fire during the second pass of
-    ///   a repeated hour: from 02:55 in the first pass, the next run is 03:00 after
-    ///   the clocks went back, about an hour later.
+    /// - a minute repeated by a fold fires once, at its first occurrence, when the
+    ///   minute and hour fields are both fixed, like `30 2 * * *`;
+    /// - when the minute or hour field starts with `*`, like `*/5 * * * *`,
+    ///   `30 * * * *` or `@hourly`, the schedule runs on real time, as in Vixie
+    ///   cron, and also fires in the second pass of a repeated hour: from 02:55 in
+    ///   the first pass, the next run is 02:00 after the clocks went back.
     ///
     /// `None` means the schedule never fires (like `0 0 30 2 *`), or the next
     /// time doesn't fit in `T`.
@@ -171,7 +178,7 @@ mod tests {
     #[test]
     fn matches_vixie() {
         // `0 0 */2 * MON`: the day-of-month field starts with `*`, so both must match.
-        let odd_mondays = CronSpec::__new_unchecked(
+        let odd_mondays = spec(
             "0 0 */2 * MON",
             1,
             1,
@@ -187,7 +194,7 @@ mod tests {
         assert!(!odd_mondays.matches(1, 0, 3, 6, MONDAY));
 
         // `0 0 1 * MON`: both restricted, so either may match.
-        let first_or_monday = CronSpec::__new_unchecked(
+        let first_or_monday = spec(
             "0 0 1 * MON",
             1,
             1,
@@ -201,7 +208,7 @@ mod tests {
         assert!(first_or_monday.matches(0, 0, 8, 6, MONDAY));
         assert!(!first_or_monday.matches(0, 0, 9, 6, TUESDAY));
 
-        let every = CronSpec::__new_unchecked(
+        let every = spec(
             "* * * * *",
             (1 << 60) - 1,
             (1 << 24) - 1,
@@ -239,8 +246,9 @@ mod tests {
         dom_star: bool,
         dow_star: bool,
     ) -> CronSpec {
+        let time_star = source.split(' ').take(2).any(|f| f.starts_with('*'));
         CronSpec::__new_unchecked(
-            source, minutes, hours, days, months, weekdays, dom_star, dow_star,
+            source, minutes, hours, days, months, weekdays, dom_star, dow_star, time_star,
         )
     }
 

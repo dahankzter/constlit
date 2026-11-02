@@ -4,6 +4,10 @@ use core::fmt;
 ///
 /// The type, subtype and parameter names are lowercase; parameter values are
 /// stored unquoted, and a `charset` value is lowercase too.
+///
+/// Equality and hashing compare the parameters in written order, so
+/// `mime!("text/plain; a=1; b=2")` and `mime!("text/plain; b=2; a=1")` are
+/// not equal. Compare [`param`](Self::param) values when order shouldn't matter.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct MediaType {
     essence: &'static str,
@@ -57,7 +61,7 @@ impl MediaType {
     ///
     /// Fails only for parameter values the `mime` crate can't parse although
     /// RFC 9110 allows them: an empty quoted value (`a=""`) or one containing
-    /// `"` or `\`.
+    /// `"`, `\` or a tab.
     #[cfg(feature = "mime")]
     pub fn to_mime(&self) -> Result<mime::Mime, mime::FromStrError> {
         use alloc::string::ToString;

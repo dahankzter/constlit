@@ -16,6 +16,11 @@ pub fn parse_version(s: &str) -> Result<(u64, u64, u64, String, String), String>
         parse_version(rest)?;
         return Err(format!(r#"remove the leading "v"; write "{rest}""#));
     }
+    if let Some(rest) = s.strip_prefix(['-', '+']) {
+        parse_version(rest)?;
+        let sign = &s[..1];
+        return Err(format!(r#"remove the leading "{sign}"; write "{rest}""#));
+    }
     let (rest, build) = match s.split_once('+') {
         Some((rest, build)) => (rest, Some(build)),
         None => (s, None),
@@ -65,13 +70,14 @@ fn parse_core(s: &str, core: &str) -> Result<[u64; 3], String> {
             .parse()
             .map_err(|_| format!("{name} version is too large for u64"))?;
     }
+    let tail = &s[core.len()..];
     match parts.len() {
         1 => Err(format!(
-            r#"missing minor and patch versions; write e.g. "{}.0.0""#,
+            r#"missing minor and patch versions; write e.g. "{}.0.0{tail}""#,
             numbers[0]
         )),
         2 => Err(format!(
-            r#"missing patch version; write e.g. "{}.{}.0""#,
+            r#"missing patch version; write e.g. "{}.{}.0{tail}""#,
             numbers[0], numbers[1]
         )),
         _ => Ok(numbers),
@@ -168,6 +174,14 @@ mod tests {
                 r#"missing minor and patch versions; write e.g. "1.0.0""#,
             ),
             ("1.2", r#"missing patch version; write e.g. "1.2.0""#),
+            ("1.2-3", r#"missing patch version; write e.g. "1.2.0-3""#),
+            (
+                "1+build.5",
+                r#"missing minor and patch versions; write e.g. "1.0.0+build.5""#,
+            ),
+            ("-1.2.3", r#"remove the leading "-"; write "1.2.3""#),
+            ("+1.2.3", r#"remove the leading "+"; write "1.2.3""#),
+            ("-1.2", r#"missing patch version; write e.g. "1.2.0""#),
             (
                 "1.2.3.4",
                 r#"too many components; SemVer has MAJOR.MINOR.PATCH, like "1.2.3""#,

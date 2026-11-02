@@ -47,6 +47,31 @@ impl Minute {
         }
     }
 
+    pub(crate) fn prev(self) -> Minute {
+        if self.minute > 0 {
+            return Minute {
+                minute: self.minute - 1,
+                ..self
+            };
+        }
+        let (year, month, day, hour) = match (self.hour, self.day, self.month) {
+            (1.., ..) => (self.year, self.month, self.day, self.hour - 1),
+            (0, 2.., _) => (self.year, self.month, self.day - 1, 23),
+            (0, _, 2..) => {
+                let month = self.month - 1;
+                (self.year, month, days_in_month(self.year, month), 23)
+            }
+            _ => (self.year - 1, 12, 31, 23),
+        };
+        Minute {
+            year,
+            month,
+            day,
+            hour,
+            minute: 59,
+        }
+    }
+
     /// The start of the next hour.
     pub(crate) fn next_hour(self) -> Minute {
         if self.hour < 23 {
@@ -125,5 +150,26 @@ mod tests {
         assert_eq!(m(2026, 10, 31, 23, 59).next(), m(2026, 11, 1, 0, 0));
         assert_eq!(m(2024, 2, 28, 23, 59).next(), m(2024, 2, 29, 0, 0));
         assert_eq!(m(2026, 12, 31, 23, 59).next(), m(2027, 1, 1, 0, 0));
+    }
+
+    #[test]
+    fn minute_prev() {
+        let m = |year, month, day, hour, minute| Minute {
+            year,
+            month,
+            day,
+            hour,
+            minute,
+        };
+        for (a, b) in [
+            (m(2026, 10, 30, 10, 7), m(2026, 10, 30, 10, 8)),
+            (m(2026, 10, 30, 10, 59), m(2026, 10, 30, 11, 0)),
+            (m(2026, 10, 31, 23, 59), m(2026, 11, 1, 0, 0)),
+            (m(2024, 2, 29, 23, 59), m(2024, 3, 1, 0, 0)),
+            (m(2026, 2, 28, 23, 59), m(2026, 3, 1, 0, 0)),
+            (m(2026, 12, 31, 23, 59), m(2027, 1, 1, 0, 0)),
+        ] {
+            assert_eq!(b.prev(), a, "{b:?}");
+        }
     }
 }

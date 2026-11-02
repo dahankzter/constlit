@@ -19,33 +19,66 @@ mod sealed {
 
 impl<T: sealed::Sealed> CronTime for T {}
 
-/// Finds the next match for a zoned `t`, whose local time is `local`.
+/// How a wall-clock minute maps to instants in a time zone.
+enum Local<Z> {
+    /// Skipped by a gap.
+    Gap,
+    One(Z),
+    /// Repeated by a fold: the earlier and the later instant.
+    Two(Z, Z),
+}
+
+/// Finds the next match strictly after the zoned `t`, whose local time is `local`.
 ///
-/// `resolve` turns a wall-clock minute into an instant: `Ok(Some(..))` for a single
-/// or the earlier of two instants, `Ok(None)` for a minute in a gap, `Err(())`
-/// when the minute doesn't fit the type. `after` says whether an instant is
-/// strictly after `t`.
-fn next_zoned<Z>(
+/// `resolve` maps a wall-clock minute to its instants, or fails when the minute
+/// doesn't fit the type.
+fn next_zoned<Z: Ord>(
     spec: &CronSpec,
+    t: &Z,
     local: Minute,
-    resolve: impl Fn(Minute) -> Result<Option<Z>, ()>,
-    after: impl Fn(&Z) -> bool,
+    resolve: impl Fn(Minute) -> Result<Local<Z>, ()>,
 ) -> Option<Z> {
     let mut cursor = local;
-    loop {
+    let next = loop {
         let candidate = spec.next_civil_after(cursor)?;
-        let mut m = candidate;
-        let instant = loop {
-            match resolve(m).ok()? {
-                Some(instant) => break instant,
-                None => m = m.next(),
+        let instant = match resolve(candidate).ok()? {
+            Local::One(instant) => instant,
+            // Wildcard schedules also run in the second pass of a fold.
+            Local::Two(early, late) if early <= *t && spec.time_star => late,
+            Local::Two(early, _) => early,
+            // A skipped minute runs at the first instant after the gap.
+            Local::Gap => {
+                let mut m = candidate.next();
+                loop {
+                    match resolve(m).ok()? {
+                        Local::Gap => m = m.next(),
+                        Local::One(instant) | Local::Two(instant, _) => break instant,
+                    }
+                }
             }
         };
-        if after(&instant) {
-            return Some(instant);
+        if instant > *t {
+            break instant;
         }
         cursor = candidate;
+    };
+    // From the first pass of a fold, a wildcard schedule's next run may be in the
+    // second pass, at a wall-clock minute before `local`.
+    if spec.time_star
+        && let Ok(Local::Two(_, late)) = resolve(local)
+        && late > *t
+    {
+        let mut start = local;
+        while let Ok(Local::Two(..)) = resolve(start.prev()) {
+            start = start.prev();
+        }
+        if let Some(m) = spec.next_civil_after(start.prev())
+            && let Ok(Local::Two(_, late)) = resolve(m)
+        {
+            return Some(next.min(late));
+        }
     }
+    Some(next)
 }
 
 #[cfg(feature = "jiff")]
@@ -55,6 +88,8 @@ mod jiff_impl {
     use jiff::Zoned;
     use jiff::civil::DateTime;
     use jiff::tz::AmbiguousOffset;
+
+    use super::Local;
 
     fn minute(t: &DateTime) -> Minute {
         Minute {
@@ -91,21 +126,25 @@ mod jiff_impl {
             let tz = t.time_zone();
             let resolve = |m: Minute| {
                 let ambiguous = tz.to_ambiguous_zoned(civil(m)?);
-                if let AmbiguousOffset::Gap { .. } = ambiguous.offset() {
-                    return Ok(None);
-                }
-                ambiguous.earlier().map(Some).map_err(|_| ())
+                Ok(match ambiguous.offset() {
+                    AmbiguousOffset::Gap { .. } => Local::Gap,
+                    AmbiguousOffset::Unambiguous { .. } => {
+                        Local::One(ambiguous.compatible().map_err(|_| ())?)
+                    }
+                    AmbiguousOffset::Fold { .. } => Local::Two(
+                        ambiguous.clone().earlier().map_err(|_| ())?,
+                        ambiguous.later().map_err(|_| ())?,
+                    ),
+                })
             };
-            next_zoned(spec, minute(&t.datetime()), resolve, |z: &Zoned| {
-                z.timestamp() > t.timestamp()
-            })
+            next_zoned(spec, t, minute(&t.datetime()), resolve)
         }
     }
 }
 
 #[cfg(feature = "chrono")]
 mod chrono_impl {
-    use super::{Minute, next_zoned, sealed::Sealed};
+    use super::{Local, Minute, next_zoned, sealed::Sealed};
     use crate::CronSpec;
     use chrono::{DateTime, Datelike, LocalResult, NaiveDate, NaiveDateTime, TimeZone, Timelike};
 
@@ -134,18 +173,14 @@ mod chrono_impl {
     impl<Tz: TimeZone> Sealed for DateTime<Tz> {
         fn next_for(spec: &CronSpec, t: &Self) -> Option<Self> {
             let tz = t.timezone();
-            let resolve = |m: Minute| match tz.from_local_datetime(&naive(m)?) {
-                LocalResult::Single(instant) | LocalResult::Ambiguous(instant, _) => {
-                    Ok(Some(instant))
-                }
-                LocalResult::None => Ok(None),
+            let resolve = |m: Minute| {
+                Ok(match tz.from_local_datetime(&naive(m)?) {
+                    LocalResult::Single(instant) => Local::One(instant),
+                    LocalResult::Ambiguous(early, late) => Local::Two(early, late),
+                    LocalResult::None => Local::Gap,
+                })
             };
-            next_zoned(
-                spec,
-                minute(&t.naive_local()),
-                resolve,
-                |z: &DateTime<Tz>| z > t,
-            )
+            next_zoned(spec, t, minute(&t.naive_local()), resolve)
         }
     }
 }

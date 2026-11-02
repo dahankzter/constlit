@@ -183,7 +183,7 @@ Zone or scope suffixes (`fe80::1%eth0`) are compile errors, since `Ipv6Addr` can
 - **Features `jiff` and `chrono`:** `next_after(&self, t) -> Option<...>` for those crates' civil or zoned date-times.
 - **Daylight-saving changes in `next_after` (my call, documented on the method):** matching happens on local wall-clock time in the value's zone.
   - **Skipped local time** (spring-forward gap): a job scheduled inside the gap runs once, at the first instant after the gap.
-  - **Repeated local time** (autumn overlap): the job runs once, at the first occurrence.
+  - **Repeated local time** (autumn overlap): a job with fixed minute and hour fields runs once, at the first occurrence. A job whose minute or hour field starts with `*` (including `*/5` and `@hourly`) runs on real time, as in Vixie cron, so it also fires through the second pass of the repeated hour (the user's decision, 2026-11-02).
   - **`None`** is returned only when no matching time exists within the date-time type's range (for example `0 0 30 2 *`, February 30).
 - `as_str()` lets the value be handed to schedulers that take strings.
 
