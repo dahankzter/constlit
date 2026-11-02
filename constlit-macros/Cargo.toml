@@ -23,6 +23,7 @@ jiff = { version = "0.2", optional = true, default-features = false, features = 
 jiff-tzdb = { version = "0.1", optional = true }
 
 [dev-dependencies]
+libc = "0.2"
 semver = "1"
 mime = "0.3"
 jiff = { version = "0.2", features = ["tzdb-bundle-always"] }

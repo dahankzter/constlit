@@ -70,10 +70,13 @@ mod cron;
 #[cfg(any(feature = "jiff", feature = "chrono"))]
 mod cron_time;
 mod date;
+pub mod linux;
+mod mac;
 mod media_type;
 mod size;
 mod time_of_day;
 mod timestamp;
+pub mod unix;
 mod version;
 mod zoned;
 
@@ -82,6 +85,7 @@ pub use cron::CronSpec;
 #[cfg(any(feature = "jiff", feature = "chrono"))]
 pub use cron_time::CronTime;
 pub use date::{Date, Weekday};
+pub use mac::MacAddr;
 pub use media_type::MediaType;
 pub use size::ByteSize;
 pub use time_of_day::TimeOfDay;
@@ -181,6 +185,25 @@ pub use constlit_macros::addr;
 /// let _ = constlit::cidr!("10.1.2.3/8"); // did you mean "10.0.0.0/8"?
 /// ```
 pub use constlit_macros::cidr;
+
+/// A MAC address literal, checked at compile time, as a [`MacAddr`].
+///
+/// Six two-digit hex bytes separated by `:` or `-` (one separator throughout);
+/// hex digits may be upper or lower case.
+///
+/// ```
+/// use constlit::{MacAddr, mac};
+/// const GATEWAY: MacAddr = mac!("00:1a:2b:3c:4d:5e");
+/// assert_eq!(GATEWAY.octets(), [0x00, 0x1a, 0x2b, 0x3c, 0x4d, 0x5e]);
+/// assert_eq!(mac!("00-1A-2B-3C-4D-5E"), GATEWAY);
+/// ```
+///
+/// Mixed separators, Cisco's dotted form and single-digit bytes are compile errors:
+///
+/// ```compile_fail
+/// let _ = constlit::mac!("001a.2b3c.4d5e");
+/// ```
+pub use constlit_macros::mac;
 
 /// A version literal, checked at compile time against
 /// [SemVer 2.0.0](https://semver.org), as a [`Version`].

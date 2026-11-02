@@ -65,11 +65,21 @@ pub fn expand(
     example: &str,
     parse: impl FnOnce(&str) -> Result<TokenStream, String>,
 ) -> TokenStream {
+    expand_spanned(input, example, |text, _| parse(text))
+}
+
+/// Like [`expand`], but `parse` also gets the literal's span, for errors the
+/// expansion itself raises later (such as `cfg`-gated `compile_error!`s).
+pub fn expand_spanned(
+    input: TokenStream,
+    example: &str,
+    parse: impl FnOnce(&str, Span) -> Result<TokenStream, String>,
+) -> TokenStream {
     let (text, span) = match string_literal(input, example) {
         Ok(found) => found,
         Err(error) => return error.to_compile_error(),
     };
-    match parse(&text) {
+    match parse(&text, span) {
         Ok(tokens) => tokens,
         Err(message) => Error { span, message }.to_compile_error(),
     }

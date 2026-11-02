@@ -1,0 +1,5 @@
+error: remove the file type "-": "rwxr-xr-x"
+ --> tests/ui/mode_file_type.rs:2:35
+  |
+2 |     let _ = constlit::unix::mode!("-rwxr-xr-x");
+  |                                   ^^^^^^^^^^^^

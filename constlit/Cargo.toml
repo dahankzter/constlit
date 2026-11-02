@@ -36,6 +36,7 @@ jiff = { version = "0.2", optional = true, default-features = false, features = 
 chrono = { version = "0.4", optional = true, default-features = false }
 
 [dev-dependencies]
+libc = "0.2"
 trybuild = "1"
 ipnet = "2"
 semver = "1"
@@ -44,6 +45,10 @@ croner = { version = "4", features = ["jiff"] }
 jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
 chrono = "0.4"
 chrono-tz = "0.10"
+
+[target.'cfg(target_os = "linux")'.dev-dependencies]
+# Oracle for the capability table.
+caps = "0.5"
 
 [package.metadata.docs.rs]
 all-features = true

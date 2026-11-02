@@ -1,0 +1,5 @@
+error: use one separator throughout: "00:1a:2b:3c:4d:5e"
+ --> tests/ui/mac_mixed_separators.rs:2:28
+  |
+2 |     let _ = constlit::mac!("00:1a:2b-3c:4d:5e");
+  |                            ^^^^^^^^^^^^^^^^^^^

@@ -1,0 +1,5 @@
+error: CAP_NET_ADMIN is listed twice
+ --> tests/ui/caps_duplicate.rs:2:36
+  |
+2 |     let _ = constlit::linux::caps!("NET_ADMIN, CAP_NET_ADMIN");
+  |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^

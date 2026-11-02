@@ -1,0 +1,5 @@
+error: signal names are upper case: "SIGTERM"
+ --> tests/ui/signal_lowercase.rs:2:37
+  |
+2 |     let _ = constlit::unix::signal!("sigterm");
+  |                                     ^^^^^^^^^

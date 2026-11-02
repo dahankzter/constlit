@@ -1,5 +1,6 @@
 //! Named time zones for `ts!`, resolved at compile time from jiff's bundled database.
 
+use crate::suggest;
 use jiff::civil::DateTime;
 use jiff::tz::{AmbiguousOffset, TimeZone, TimeZoneDatabase};
 
@@ -113,18 +114,13 @@ fn lookup(zone: &str) -> Result<TimeZone, String> {
             r#"unknown time zone "{zone}"; abbreviations aren't zone names, use an offset like "-08:00" or a name like "America/Los_Angeles""#
         ));
     }
-    let closest = db
-        .available()
-        .map(|name| name.to_string())
-        .map(|name| (levenshtein(zone, &name), name))
-        .min();
-    Err(match closest {
-        // At most 3 edits, and at most one per three characters of the name.
-        Some((distance, name)) if distance <= 3 && 3 * distance <= zone.len() => {
-            format!(r#"unknown time zone "{zone}"; did you mean "{name}"?"#)
-        }
-        _ => format!(r#"unknown time zone "{zone}""#),
-    })
+    let names: Vec<String> = db.available().map(|name| name.to_string()).collect();
+    Err(
+        match suggest::closest(zone, names.iter().map(String::as_str)) {
+            Some(name) => format!(r#"unknown time zone "{zone}"; did you mean "{name}"?"#),
+            None => format!(r#"unknown time zone "{zone}""#),
+        },
+    )
 }
 
 /// jiff's timestamps, and so named zones, end about a day before year 9999 does;
@@ -144,23 +140,6 @@ fn show(seconds: i32) -> String {
         0 => hm,
         s => format!("{hm}:{s:02}"),
     }
-}
-
-fn levenshtein(a: &str, b: &str) -> usize {
-    let b: Vec<char> = b.chars().collect();
-    let mut row: Vec<usize> = (0..=b.len()).collect();
-    for (i, ca) in a.chars().enumerate() {
-        let mut diagonal = row[0];
-        row[0] = i + 1;
-        for (j, &cb) in b.iter().enumerate() {
-            let above = row[j + 1];
-            row[j + 1] = (above + 1)
-                .min(row[j] + 1)
-                .min(diagonal + usize::from(ca != cb));
-            diagonal = above;
-        }
-    }
-    row[b.len()]
 }
 
 #[cfg(test)]

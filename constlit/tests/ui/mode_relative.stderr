@@ -1,0 +1,5 @@
+error: "u+x" changes a mode; write an absolute mode like "u=rwx,go=rx" or "0755"
+ --> tests/ui/mode_relative.rs:2:35
+  |
+2 |     let _ = constlit::unix::mode!("u+x");
+  |                                   ^^^^^

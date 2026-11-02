@@ -1,0 +1,5 @@
+error: SIGINFO does not exist on Linux and Android
+ --> tests/ui_linux/signal_missing.rs:2:37
+  |
+2 |     let _ = constlit::unix::signal!("SIGINFO");
+  |                                     ^^^^^^^^^

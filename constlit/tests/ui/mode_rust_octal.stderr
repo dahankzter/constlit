@@ -1,0 +1,5 @@
+error: write the mode without "0o": "0755"
+ --> tests/ui/mode_rust_octal.rs:2:35
+  |
+2 |     let _ = constlit::unix::mode!("0o755");
+  |                                   ^^^^^^^

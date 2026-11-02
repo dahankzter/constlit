@@ -1,0 +1,5 @@
+error: "ALL" depends on the kernel; list the capabilities you need
+ --> tests/ui/cap_all.rs:2:35
+  |
+2 |     let _ = constlit::linux::cap!("ALL");
+  |                                   ^^^^^

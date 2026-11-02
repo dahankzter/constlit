@@ -1,0 +1,5 @@
+error: capability names are upper case: "CAP_NET_ADMIN"
+ --> tests/ui/cap_lowercase.rs:2:35
+  |
+2 |     let _ = constlit::linux::cap!("cap_net_admin");
+  |                                   ^^^^^^^^^^^^^^^

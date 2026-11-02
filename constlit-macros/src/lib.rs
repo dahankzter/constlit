@@ -1,6 +1,7 @@
 //! Procedural macros for `constlit`. Use them through the `constlit` crate.
 #![forbid(unsafe_code)]
 
+mod cap;
 mod cron;
 #[cfg(test)]
 #[path = "../../constlit/tests/support/cron_gen.rs"]
@@ -8,9 +9,13 @@ mod cron_gen;
 mod datetime;
 mod duration;
 mod input;
+mod mac;
 mod media_type;
+mod mode;
 mod net;
+mod signal;
 mod size;
+mod suggest;
 mod ts;
 mod version;
 #[cfg(feature = "tz")]
@@ -73,6 +78,59 @@ pub fn cidr(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             net::Ip::V4(_) => quote!(::constlit::Ipv4Cidr::__new_unchecked(#ip_tokens, #prefix)),
             net::Ip::V6(_) => quote!(::constlit::Ipv6Cidr::__new_unchecked(#ip_tokens, #prefix)),
         })
+    })
+    .into()
+}
+
+/// A MAC address literal as a `constlit::MacAddr` constant.
+#[proc_macro]
+pub fn mac(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"00:1a:2b:3c:4d:5e\"", |s| {
+        let bytes = mac::parse_mac(s)?;
+        Ok(quote!(::constlit::MacAddr::new([#(#bytes),*])))
+    })
+    .into()
+}
+
+/// A file permission mode literal as a `constlit::unix::Mode` constant.
+/// Use it as `constlit::unix::mode!`.
+#[proc_macro]
+pub fn unix_mode(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"0755\"", |s| {
+        let bits = mode::parse_mode(s)?;
+        Ok(quote!(::constlit::unix::Mode::__new_unchecked(#bits)))
+    })
+    .into()
+}
+
+/// A signal name literal as a `constlit::unix::Signal` constant, numbered for the
+/// build target. Use it as `constlit::unix::signal!`.
+#[proc_macro]
+pub fn unix_signal(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand_spanned(input.into(), "\"SIGTERM\"", |s, span| {
+        Ok(signal::expand_signal(signal::parse_signal(s)?, s, span))
+    })
+    .into()
+}
+
+/// A Linux capability name literal as a `constlit::linux::Capability` constant.
+/// Use it as `constlit::linux::cap!`.
+#[proc_macro]
+pub fn linux_cap(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"CAP_NET_ADMIN\"", |s| {
+        let number = cap::parse_cap(s)?;
+        Ok(quote!(::constlit::linux::Capability::__new_unchecked(#number)))
+    })
+    .into()
+}
+
+/// A list of Linux capability names as a `constlit::linux::CapSet` constant.
+/// Use it as `constlit::linux::caps!`.
+#[proc_macro]
+pub fn linux_caps(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"CAP_NET_ADMIN, CAP_SYS_TIME\"", |s| {
+        let bits = cap::parse_caps(s)?;
+        Ok(quote!(::constlit::linux::CapSet::__from_bits_unchecked(#bits)))
     })
     .into()
 }

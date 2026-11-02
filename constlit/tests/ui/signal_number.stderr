@@ -1,0 +1,5 @@
+error: signal numbers differ between platforms; write the name, e.g. "SIGTERM" (15 on most Linux targets)
+ --> tests/ui/signal_number.rs:2:37
+  |
+2 |     let _ = constlit::unix::signal!("15");
+  |                                     ^^^^
