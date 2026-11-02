@@ -1,0 +1,5 @@
+error: day 30 is out of range: February 2026 has 28 days
+ --> tests/ui/date_feb_30.rs:2:29
+  |
+2 |     let _ = constlit::date!("2026-02-30");
+  |                             ^^^^^^^^^^^^

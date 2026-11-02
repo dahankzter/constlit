@@ -1,0 +1,5 @@
+error: hour 24 is out of range (00-23); midnight is "00:00"
+ --> tests/ui/time_24.rs:2:29
+  |
+2 |     let _ = constlit::time!("24:00");
+  |                             ^^^^^^^

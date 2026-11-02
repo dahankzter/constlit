@@ -4,12 +4,16 @@ mod cron;
 #[cfg(test)]
 #[path = "../../constlit/tests/support/cron_gen.rs"]
 mod cron_gen;
+mod datetime;
 mod duration;
 mod input;
 mod media_type;
 mod net;
 mod size;
+mod ts;
 mod version;
+#[cfg(feature = "tz")]
+mod zone;
 
 use quote::quote;
 
@@ -112,4 +116,63 @@ pub fn cron(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         )))
     })
     .into()
+}
+
+/// A date literal as a `constlit::Date` constant.
+#[proc_macro]
+pub fn date(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"2026-10-30\"", |s| {
+        let (year, month, day) = datetime::parse_date(s)?;
+        Ok(quote!(::constlit::Date::__new_unchecked(#year, #month, #day)))
+    })
+    .into()
+}
+
+/// A time-of-day literal as a `constlit::TimeOfDay` constant.
+#[proc_macro]
+pub fn time(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"14:30\"", |s| {
+        let (hour, minute, second, nanosecond) = datetime::parse_time(s)?;
+        Ok(quote!(::constlit::TimeOfDay::__new_unchecked(
+            #hour, #minute, #second, #nanosecond
+        )))
+    })
+    .into()
+}
+
+/// A timestamp literal as a `constlit::Timestamp` constant, or a
+/// `constlit::ZonedTimestamp` for a named zone.
+#[proc_macro]
+pub fn ts(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"2026-10-30T14:00Z\"", |s| {
+        Ok(match ts::parse_ts(s)? {
+            ts::Ts::Fixed {
+                secs,
+                nanos,
+                offset,
+            } => quote!(::constlit::Timestamp::__new_unchecked(#secs, #nanos, #offset)),
+            ts::Ts::Zoned {
+                secs,
+                nanos,
+                offset,
+                zone,
+            } => quote!(::constlit::ZonedTimestamp::__new_unchecked(
+                ::constlit::Timestamp::__new_unchecked(#secs, #nanos, #offset),
+                #zone
+            )),
+        })
+    })
+    .into()
+}
+
+/// The bundled IANA time-zone database version, as a string literal, for the docs.
+#[doc(hidden)]
+#[proc_macro]
+pub fn __tzdb_version(_input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    #[cfg(feature = "tz")]
+    let version = zone::tzdb_version();
+    #[cfg(not(feature = "tz"))]
+    let version = "none (the tz feature is off)";
+    let literal = proc_macro2::Literal::string(version);
+    quote!(#literal).into()
 }

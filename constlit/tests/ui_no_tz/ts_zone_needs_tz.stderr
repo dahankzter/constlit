@@ -1,0 +1,5 @@
+error: named time zones need constlit's "tz" feature; enable it, or write an offset like "+01:00"
+ --> tests/ui_no_tz/ts_zone_needs_tz.rs:2:27
+  |
+2 |     let _ = constlit::ts!("2026-10-30 14:00 Europe/Stockholm");
+  |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

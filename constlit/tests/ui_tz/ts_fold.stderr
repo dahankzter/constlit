@@ -1,0 +1,5 @@
+error: 2026-10-25 02:30 happens twice in Europe/Stockholm; write "2026-10-25 02:30+02:00 Europe/Stockholm" (the first) or "2026-10-25 02:30+01:00 Europe/Stockholm" (the second)
+ --> tests/ui_tz/ts_fold.rs:2:27
+  |
+2 |     let _ = constlit::ts!("2026-10-25 02:30 Europe/Stockholm");
+  |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

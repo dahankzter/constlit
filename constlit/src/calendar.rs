@@ -25,7 +25,38 @@ pub(crate) const fn weekday(year: i32, month: u8, day: u8) -> u8 {
     days.rem_euclid(7) as u8
 }
 
+/// Day of the year, 1-366.
+pub(crate) const fn day_of_year(year: i32, month: u8, day: u8) -> u16 {
+    let mut days = day as u16;
+    let mut m = 1;
+    while m < month {
+        days += days_in_month(year, m) as u16;
+        m += 1;
+    }
+    days
+}
+
+/// The date `days` after 1970-01-01, by Howard Hinnant's `civil_from_days`.
+pub(crate) const fn civil_from_days(days: i64) -> (i32, u8, u8) {
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let day_of_era = z.rem_euclid(146_097);
+    let year_of_era =
+        (day_of_era - day_of_era / 1460 + day_of_era / 36_524 - day_of_era / 146_096) / 365;
+    let day_of_year = day_of_era - (365 * year_of_era + year_of_era / 4 - year_of_era / 100);
+    let shifted_month = (5 * day_of_year + 2) / 153;
+    let day = day_of_year - (153 * shifted_month + 2) / 5 + 1;
+    let month = if shifted_month < 10 {
+        shifted_month + 3
+    } else {
+        shifted_month - 9
+    };
+    let year = year_of_era + era * 400 + (month <= 2) as i64;
+    (year as i32, month as u8, day as u8)
+}
+
 /// A wall-clock minute: a civil date and time without seconds or a time zone.
+#[cfg_attr(not(any(feature = "jiff", feature = "chrono")), allow(dead_code))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct Minute {
     pub(crate) year: i32,
@@ -35,6 +66,7 @@ pub(crate) struct Minute {
     pub(crate) minute: u8,
 }
 
+#[cfg_attr(not(any(feature = "jiff", feature = "chrono")), allow(dead_code))]
 impl Minute {
     pub(crate) fn next(self) -> Minute {
         if self.minute < 59 {
@@ -134,6 +166,43 @@ mod tests {
         assert_eq!(weekday(2000, 1, 1), 6);
         assert_eq!(weekday(1970, 1, 1), 4);
         assert_eq!(weekday(-1, 12, 31), 5);
+    }
+
+    #[test]
+    fn calendar_day_of_year() {
+        assert_eq!(day_of_year(2026, 1, 1), 1);
+        assert_eq!(day_of_year(2026, 12, 31), 365);
+        assert_eq!(day_of_year(2024, 12, 31), 366);
+        assert_eq!(day_of_year(2024, 3, 1), 61);
+        assert_eq!(day_of_year(2026, 10, 30), 303);
+    }
+
+    fn splitmix(state: &mut u64) -> u64 {
+        *state = state.wrapping_add(0x9e37_79b9_7f4a_7c15);
+        let mut z = *state;
+        z = (z ^ (z >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
+        z = (z ^ (z >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
+        z ^ (z >> 31)
+    }
+
+    #[test]
+    fn civil_from_days_oracle() {
+        // 0001-01-01 and 9999-12-31 as days since 1970-01-01.
+        const FIRST: i64 = -719_162;
+        const LAST: i64 = 2_932_896;
+        let mut state = 21u64;
+        let random =
+            (0..20_000).map(|_| FIRST + (splitmix(&mut state) % (LAST - FIRST + 1) as u64) as i64);
+        for d in random.chain([FIRST, -1, 0, 1, LAST]) {
+            let date = jiff::civil::date(1970, 1, 1)
+                .checked_add(jiff::Span::new().days(d))
+                .unwrap();
+            assert_eq!(
+                civil_from_days(d),
+                (i32::from(date.year()), date.month() as u8, date.day() as u8),
+                "day {d}"
+            );
+        }
     }
 
     #[test]

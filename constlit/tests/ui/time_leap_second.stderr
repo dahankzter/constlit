@@ -1,0 +1,5 @@
+error: second 60 is out of range (00-59); leap seconds aren't supported
+ --> tests/ui/time_leap_second.rs:2:29
+  |
+2 |     let _ = constlit::time!("23:59:60");
+  |                             ^^^^^^^^^^

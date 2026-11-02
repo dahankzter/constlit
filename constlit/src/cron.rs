@@ -52,7 +52,7 @@ impl CronSpec {
         }
     }
 
-    /// This schedule, but in [`next_after`](Self::next_after) every time skipped by
+    /// This schedule, but in `next_after` every time skipped by
     /// a daylight-saving gap runs once, at the first instant after the gap.
     ///
     /// By default only schedules with fixed minute and hour fields catch up, as in

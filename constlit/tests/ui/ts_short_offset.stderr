@@ -1,0 +1,5 @@
+error: write the offset as ±HH:MM: "+02:00"
+ --> tests/ui/ts_short_offset.rs:2:27
+  |
+2 |     let _ = constlit::ts!("2026-10-30T14:00+02");
+  |                           ^^^^^^^^^^^^^^^^^^^^^

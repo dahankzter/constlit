@@ -10,11 +10,20 @@ repository.workspace = true
 [lib]
 proc-macro = true
 
+[features]
+# Named time zones in `ts!`, resolved at compile time.
+tz = ["dep:jiff", "dep:jiff-tzdb"]
+
 [dependencies]
 proc-macro2 = "1"
 quote = "1"
 litrs = { version = "1", features = ["proc-macro2"] }
+jiff = { version = "0.2", optional = true, default-features = false, features = ["std", "tzdb-bundle-always"] }
+jiff-tzdb = { version = "0.1", optional = true }
 
 [dev-dependencies]
 semver = "1"
 mime = "0.3"
+jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
+chrono = "0.4"
+chrono-tz = "0.10"

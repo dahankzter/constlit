@@ -3,25 +3,33 @@
 
 #[cfg(feature = "mime")]
 extern crate alloc;
+#[cfg(feature = "std")]
+extern crate std;
 
-// Only `next_after` uses it until the date types arrive.
-#[cfg_attr(not(any(feature = "jiff", feature = "chrono")), allow(dead_code))]
 mod calendar;
 mod cidr;
 mod cron;
 #[cfg(any(feature = "jiff", feature = "chrono"))]
 mod cron_time;
+mod date;
 mod media_type;
 mod size;
+mod time_of_day;
+mod timestamp;
 mod version;
+mod zoned;
 
 pub use cidr::{Cidr, CidrError, Ipv4Cidr, Ipv6Cidr};
 pub use cron::CronSpec;
 #[cfg(any(feature = "jiff", feature = "chrono"))]
 pub use cron_time::CronTime;
+pub use date::{Date, Weekday};
 pub use media_type::MediaType;
 pub use size::ByteSize;
+pub use time_of_day::TimeOfDay;
+pub use timestamp::Timestamp;
 pub use version::Version;
+pub use zoned::ZonedTimestamp;
 
 /// A duration literal, checked at compile time, as a [`core::time::Duration`].
 ///
@@ -175,7 +183,7 @@ pub use constlit_macros::mime;
 /// assert!(!WORKDAYS.matches(0, 9, 31, 10, 6));
 /// ```
 ///
-/// With the `jiff` or `chrono` feature, [`CronSpec::next_after`] finds the next run
+/// With the `jiff` or `chrono` feature, `CronSpec::next_after` finds the next run
 /// time after a date-time, honoring daylight-saving changes in zoned types.
 ///
 /// A seconds field, Quartz syntax (`?`, `L`, `W`, `#`), `@reboot` and values out of
@@ -185,3 +193,93 @@ pub use constlit_macros::mime;
 /// let _ = constlit::cron!("0 */5 * * * *");
 /// ```
 pub use constlit_macros::cron;
+
+/// A calendar date literal, checked at compile time, as a [`Date`].
+///
+/// The form is ISO 8601 `YYYY-MM-DD`, with years 0001-9999 in the proleptic
+/// Gregorian calendar.
+///
+/// ```
+/// use constlit::{Date, Weekday, date};
+/// const LAUNCH: Date = date!("2026-10-30");
+/// assert_eq!(LAUNCH.weekday(), Weekday::Friday);
+/// ```
+///
+/// Impossible dates are compile errors that name the month's length, and so are
+/// other orders such as `"30.10.2026"`:
+///
+/// ```compile_fail
+/// let _ = constlit::date!("2026-02-30");
+/// ```
+pub use constlit_macros::date;
+
+/// A time-of-day literal, checked at compile time, as a [`TimeOfDay`].
+///
+/// The form is `HH:MM`, `HH:MM:SS` or `HH:MM:SS.F` with 1-9 fraction digits, on
+/// the 24-hour clock.
+///
+/// ```
+/// use constlit::{TimeOfDay, time};
+/// const STANDUP: TimeOfDay = time!("09:15");
+/// assert_eq!(STANDUP.to_string(), "09:15:00");
+/// ```
+///
+/// `24:00`, leap seconds (`:60`), AM/PM and zones are compile errors:
+///
+/// ```compile_fail
+/// let _ = constlit::time!("24:00");
+/// ```
+pub use constlit_macros::time;
+
+/// A timestamp literal, checked at compile time, as a [`Timestamp`], or a
+/// [`ZonedTimestamp`] when it names a time zone.
+///
+/// The form is `YYYY-MM-DD`, `T` or one space, `HH:MM[:SS[.F]]`, then `Z` for
+/// UTC or an offset `±HH:MM` (also `±HHMM` and `±HH:MM:SS`):
+///
+/// ```
+/// use constlit::{Timestamp, ts};
+/// const LAUNCH: Timestamp = ts!("2026-10-30T14:00+01:00");
+/// assert_eq!(LAUNCH.unix_seconds(), 1_793_365_200);
+/// assert_eq!(LAUNCH, ts!("2026-10-30 13:00Z"));
+/// ```
+///
+/// A timestamp without a zone is ambiguous, so it is a compile error:
+///
+/// ```compile_fail
+/// let _ = constlit::ts!("2026-10-30 14:00");
+/// ```
+///
+/// # Named time zones
+///
+/// With the `tz` feature (on by default), an IANA zone name may follow the time,
+/// or an offset, after one space. The zone is resolved while your crate compiles,
+/// and the result is a [`ZonedTimestamp`]:
+///
+/// ```
+/// # #[cfg(feature = "tz")] {
+/// use constlit::{ZonedTimestamp, ts};
+/// const MEETING: ZonedTimestamp = ts!("2026-10-30 14:00 Europe/Stockholm");
+/// assert_eq!(MEETING.offset_seconds(), 3600);
+/// # }
+/// ```
+///
+/// A local time skipped when the clocks go forward is a compile error. So is one
+/// that happens twice when they go back, unless an offset picks one; the message
+/// gives both spellings:
+///
+/// ```compile_fail
+/// let _ = constlit::ts!("2026-10-25 02:30 Europe/Stockholm");
+/// ```
+///
+/// An explicit offset that the zone doesn't have at that time is an error too.
+///
+/// **The zone rules are the ones known when `constlit` was built.** For a future
+/// instant, a later change to a zone's law takes effect only after a rebuild with
+/// a newer `constlit`.
+#[doc = concat!(
+    "The bundled IANA time-zone database is version ",
+    constlit_macros::__tzdb_version!(),
+    "."
+)]
+pub use constlit_macros::ts;

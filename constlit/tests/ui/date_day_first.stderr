@@ -1,0 +1,5 @@
+error: write the date year first, as YYYY-MM-DD (ISO 8601)
+ --> tests/ui/date_day_first.rs:2:29
+  |
+2 |     let _ = constlit::date!("30.10.2026");
+  |                             ^^^^^^^^^^^^

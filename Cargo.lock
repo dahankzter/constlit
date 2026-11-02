@@ -87,6 +87,10 @@ dependencies = [
 name = "constlit-macros"
 version = "0.1.0"
 dependencies = [
+ "chrono",
+ "chrono-tz",
+ "jiff",
+ "jiff-tzdb",
  "litrs",
  "mime",
  "proc-macro2",

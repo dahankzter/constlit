@@ -10,13 +10,19 @@ keywords = ["literal", "const", "duration", "cidr", "macro"]
 categories = ["no-std", "rust-patterns", "date-and-time", "network-programming"]
 
 [features]
+default = ["tz"]
+# Named time zones in `ts!`, resolved at compile time from jiff's bundled IANA
+# database. Without it, `ts!` takes only `Z` and offsets.
+tz = ["constlit-macros/tz"]
 ipnet = ["dep:ipnet"]
 semver = ["dep:semver"]
 # Adds `MediaType::to_mime`. The `mime` crate needs `std`.
 mime = ["dep:mime"]
-# `CronSpec::next_after` for jiff date-times.
+# `Timestamp::to_system_time`.
+std = []
+# `CronSpec::next_after` for jiff date-times, and conversions of the date and time types to jiff.
 jiff = ["dep:jiff"]
-# `CronSpec::next_after` for chrono date-times.
+# `CronSpec::next_after` for chrono date-times, and conversions of the date and time types to chrono.
 chrono = ["dep:chrono"]
 
 [dependencies]
