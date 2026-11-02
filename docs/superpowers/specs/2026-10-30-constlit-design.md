@@ -249,7 +249,7 @@ Zone or scope suffixes (`fe80::1%eth0`) are compile errors, since `Ipv6Addr` can
 2. **Phase 2:** macros 6-8 (`version!`, `mime!`, `cron!`).
 3. **Phase 3:** macros 9-11 (`date!`, `time!`, `ts!`, with the bundled tz database).
 4. **Then:** README, crate docs, and the first release.
-5. **Later:** Kubernetes and Linux values.
+5. **Later:** Kubernetes and Linux values, now designed in `2026-11-02-constlit-0.2-design.md`.
 
 ## Conversions in version one (my call)
 
