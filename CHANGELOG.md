@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0
+
+Eight new macros, and two new modules (`docker` and `systemd`).
+
+- `docker::port!` → `PortMapping`: Docker port mappings with ranges, IPv6 host
+  addresses and protocols, checked against Docker's own parser; spellings it quietly
+  accepts but that read as mistakes (port 0, `080`, `80/TCP`) are errors.
+- `linux::errno!` → `Errno`, numbered for the build target (generic, powerpc, mips and
+  sparc Linux); `linux::ifname!` for interface names; `linux::dev!` → `DevNum` with
+  glibc's `dev_t` encoding.
+- `version_req!` → `VersionReq`: Cargo version requirements with Cargo's matching,
+  checked against the `semver` crate; build metadata is an error.
+- `systemd::timespan!` → `Duration`, `systemd::calendar!` → `CalendarSpec` (systemd's
+  normalized form, `matches`, and `next_after` matching systemd across DST changes) and
+  `systemd::unit!`, checked against `systemd-analyze`.
+- "Remove the spaces" suggestions in `unix::mode!`, `oci::image!` and the Kubernetes
+  quantities are now offered only when the result is valid.
+
 ## 0.2.0
 
 Sixteen new macros for the systems programs deploy on, with the same strict,

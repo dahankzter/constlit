@@ -85,7 +85,7 @@ dependencies = [
 
 [[package]]
 name = "constlit"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "caps",
  "chrono",
@@ -103,7 +103,7 @@ dependencies = [
 
 [[package]]
 name = "constlit-macros"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "chrono",
  "chrono-tz",

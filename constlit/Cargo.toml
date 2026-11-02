@@ -33,7 +33,7 @@ k8s-openapi = ["dep:k8s-openapi"]
 __k8s-openapi-latest = ["k8s-openapi/latest"]
 
 [dependencies]
-constlit-macros = { path = "../constlit-macros", version = "=0.2.0" }
+constlit-macros = { path = "../constlit-macros", version = "=0.3.0" }
 ipnet = { version = "2", optional = true, default-features = false }
 semver = { version = "1", optional = true, default-features = false }
 mime = { version = "0.3", optional = true }

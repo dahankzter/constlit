@@ -56,6 +56,7 @@ cargo add constlit
 | `cidr!` | `cidr!("10.0.0.0/8")` | `constlit::Ipv4Cidr` or `Ipv6Cidr`, by literal |
 | `mac!` | `mac!("00:1a:2b:3c:4d:5e")` | `constlit::MacAddr` |
 | `version!` | `version!("1.2.3-beta.1+build.5")` | `constlit::Version` |
+| `version_req!` | `version_req!(">=1.2, <2")` | `constlit::VersionReq` |
 | `mime!` | `mime!("text/html; charset=utf-8")` | `constlit::MediaType` |
 | `cron!` | `cron!("*/5 9-17 * * MON-FRI")` | `constlit::CronSpec` |
 | `date!` | `date!("2026-10-30")` | `constlit::Date` |
@@ -63,7 +64,7 @@ cargo add constlit
 | `ts!` | `ts!("2026-10-30T14:00+01:00")`, `ts!("2026-10-30 14:00 Europe/Stockholm")` | `constlit::Timestamp` or `ZonedTimestamp`, by literal |
 
 Values from particular systems live in modules: `constlit::unix`, `constlit::linux`,
-`constlit::k8s` and `constlit::oci`. That keeps their type names (`Quantity`,
+`constlit::k8s`, `constlit::oci`, `constlit::docker` and `constlit::systemd`. That keeps their type names (`Quantity`,
 `Signal`, `Platform`, ...) clear of the ecosystem types you convert them to.
 
 ### Unix and Linux
@@ -74,6 +75,17 @@ Values from particular systems live in modules: `constlit::unix`, `constlit::lin
 | `unix::signal!` | `signal!("SIGTERM")`, `signal!("TERM")` | `unix::Signal`, numbered for the build target |
 | `linux::cap!` | `cap!("CAP_NET_ADMIN")`, `cap!("NET_ADMIN")` | `linux::Capability` |
 | `linux::caps!` | `caps!("CAP_NET_ADMIN, CAP_SYS_TIME")` | `linux::CapSet` |
+| `linux::errno!` | `errno!("ENOENT")` | `linux::Errno`, numbered for the build target |
+| `linux::ifname!` | `ifname!("enp3s0")` | `&'static str` |
+| `linux::dev!` | `dev!("8:0")` | `linux::DevNum` |
+
+### systemd
+
+| macro | example | value |
+|---|---|---|
+| `systemd::timespan!` | `timespan!("5min 30s")` | `core::time::Duration` |
+| `systemd::calendar!` | `calendar!("Mon..Fri 09:00")` | `systemd::CalendarSpec` |
+| `systemd::unit!` | `unit!("getty@tty1.service")` | `&'static str` |
 
 ### Kubernetes
 
@@ -93,6 +105,7 @@ Values from particular systems live in modules: `constlit::unix`, `constlit::lin
 | `oci::image!` | `image!("nginx")`, `image!("ghcr.io/org/app:1.2")` | `oci::ImageRef` |
 | `oci::digest!` | `digest!("sha256:…")` | `oci::Digest` |
 | `oci::platform!` | `platform!("linux/arm64/v8")` | `oci::Platform` |
+| `docker::port!` | `port!("127.0.0.1:8080:80/tcp")` | `docker::PortMapping` |
 
 Every macro works in `const` and `static` items. The crate's own types keep their
 fields private, so every value is valid: there is no February 30 and no CIDR with
@@ -126,6 +139,9 @@ A few more:
 | `k8s::dns_label!("My-App")` | ``names must be lower case; write "my-app"`` |
 | `oci::image!("MyOrg/app")` | ``"MyOrg" would be read as a registry host; Docker Hub names are lower case: "myorg/app"`` |
 | `oci::platform!("linux/x86_64")` | ``"x86_64" is not a Go architecture name; write "linux/amd64"`` |
+| `docker::port!("8080:80/TCP")` | ``protocols are lower case: "8080:80/tcp"`` |
+| `version_req!(">=1.2 <2")` | ``separate comparators with ",": ">=1.2, <2"`` |
+| `systemd::timespan!("30")` | ``missing unit after 30; write e.g. "30s" or "30min"`` |
 
 ## The rules
 
@@ -143,6 +159,9 @@ A few more:
 - **`mac!`:** six two-digit hex bytes with one separator, `:` or `-`, in either case.
 - **`version!`:** [SemVer 2.0.0](https://semver.org) exactly, so `"v1.2.3"` and `"1.2"`
   are errors. `Ord`, `Eq` and `Hash` follow SemVer precedence and ignore build metadata.
+- **`version_req!`:** Cargo's requirement syntax, as the `semver` crate parses it, and
+  Cargo's matching, including its pre-release opt-in. Build metadata (which
+  requirements ignore) is an error.
 - **`mime!`:** RFC 6838 type and subtype, RFC 9110 parameters (tokens or quoted
   strings). Names are lowercased, and so is the `charset` value. Wildcards like
   `"text/*"` are media ranges, not media types, so they are errors.
@@ -165,6 +184,16 @@ A few more:
   signals are errors.
 - **`linux::cap!`, `caps!`:** `CAP_X` or `X`, numbers 0-40; `"ALL"` and duplicates are
   errors.
+- **`linux::errno!`:** names with their `E`, numbered for the build target (Linux and
+  Android: generic, powerpc, mips and sparc); other targets are a compile error.
+- **`linux::ifname!`, `dev!`:** the kernel's interface-name rule (printable ASCII, at
+  most 15 bytes) and `major:minor` device numbers within its limits.
+- **`docker::port!`:** the `docker run -p` form, with ranges, IPv6 in brackets and
+  `tcp`/`udp`/`sctp`; port 0, leading zeros and other spellings Docker quietly accepts
+  are errors with a suggestion.
+- **`systemd::timespan!`, `calendar!`, `unit!`:** systemd's syntax. Time spans need a
+  unit; `calendar!`'s `Display` is systemd's normalized form and `next_after` matches
+  systemd's next elapse, also across DST changes; the only zone suffix is `UTC`.
 - **`k8s::quantity!`, `cpu!`, `mem!`:** Kubernetes' quantity grammar, kept exactly in
   milli-units. Where Kubernetes would round or cap (finer than `1m`, beyond 2^63 - 1
   units) it is an error. `cpu!` rejects negatives and binary suffixes; `mem!` wants
@@ -225,10 +254,10 @@ On zoned date-times it follows Vixie cron through daylight-saving changes:
 |---|---|---|
 | `tz` | yes | named time zones in `ts!` (pulls jiff into the proc macro only) |
 | `std` | | `Timestamp::to_system_time`, `unix::Mode::to_permissions` (on unix) |
-| `jiff` | | `CronSpec::next_after` for jiff date-times; `to_jiff` on `Date`, `TimeOfDay` and `Timestamp`; `ZonedTimestamp::to_jiff_zoned` |
-| `chrono` | | `CronSpec::next_after` for chrono date-times; `to_chrono` on `Date`, `TimeOfDay` and `Timestamp` |
+| `jiff` | | `CronSpec::next_after` and `CalendarSpec::next_after` for jiff date-times; `to_jiff` on `Date`, `TimeOfDay` and `Timestamp`; `ZonedTimestamp::to_jiff_zoned` |
+| `chrono` | | `CronSpec::next_after` and `CalendarSpec::next_after` for chrono date-times; `to_chrono` on `Date`, `TimeOfDay` and `Timestamp` |
 | `ipnet` | | `From` the CIDR types into `ipnet::Ipv4Net` and `Ipv6Net` |
-| `semver` | | `Version::to_semver` |
+| `semver` | | `Version::to_semver`, `VersionReq::to_semver` |
 | `mime` | | `MediaType::to_mime` (needs `std`) |
 | `k8s-openapi` | | `From<k8s::Quantity>` for k8s-openapi's `Quantity`; your crate picks the Kubernetes version through k8s-openapi's `v1_*` features, as k8s-openapi requires |
 
@@ -236,8 +265,8 @@ On zoned date-times it follows Vixie cron through daylight-saving changes:
 
 `no_std` with no allocation; it builds for bare-metal targets such as
 `thumbv7m-none-eabi`. The `mime`, `std` and `k8s-openapi` features need `std`. No
-`unsafe`. `unix::signal!` needs a Linux, Android, macOS, iOS or BSD target; every other
-macro works everywhere.
+`unsafe`. `unix::signal!` needs a Linux, Android, macOS, iOS or BSD target and
+`linux::errno!` a Linux or Android target; every other macro works everywhere.
 
 ## Minimum supported Rust version
 
@@ -260,8 +289,9 @@ licensed as above, without any additional terms or conditions.
   [IANA time-zone database](https://www.iana.org/time-zones).
 - Cron semantics follow Paul Vixie's cron; [croner](https://crates.io/crates/croner)
   and [chrono-tz](https://crates.io/crates/chrono-tz) serve as test oracles.
-- The Kubernetes and container macros are tested against the Go code that defines those
-  formats: Kubernetes' `apimachinery`, Docker's `distribution/reference`, `go-digest`
-  and containerd's `platforms`, through fixtures generated by a small Go program in the
-  repository. Signal numbers are checked against the `libc` crate and capabilities
-  against the `caps` crate.
+- The Kubernetes, container and Docker macros are tested against the Go code that
+  defines those formats: Kubernetes' `apimachinery`, Docker's `distribution/reference`
+  and `go-connections`, `go-digest` and containerd's `platforms`, through fixtures
+  generated by a small Go program in the repository. The systemd macros are tested
+  against `systemd-analyze`, `version_req!` against the `semver` crate, signal and errno
+  numbers against the `libc` crate, and capabilities against the `caps` crate.
