@@ -1,0 +1,5 @@
+error: "0.1m" is finer than 1m, the smallest step Kubernetes keeps; write "1m"
+ --> tests/ui/quantity_finer_than_milli.rs:2:38
+  |
+2 |     let _ = constlit::k8s::quantity!("0.1m");
+  |                                      ^^^^^^

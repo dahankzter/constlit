@@ -7,6 +7,8 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+# The Go oracle and its fixtures are only for this crate's tests.
+exclude = ["oracle", "src/testdata"]
 
 [lib]
 proc-macro = true

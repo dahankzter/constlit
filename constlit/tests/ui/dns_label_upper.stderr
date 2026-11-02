@@ -1,0 +1,5 @@
+error: names must be lower case; write "my-app"
+ --> tests/ui/dns_label_upper.rs:2:39
+  |
+2 |     let _ = constlit::k8s::dns_label!("My-App");
+  |                                       ^^^^^^^^

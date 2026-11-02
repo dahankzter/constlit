@@ -1,0 +1,5 @@
+error: CPU is counted in cores, not bytes; write e.g. "2" or "500m"
+ --> tests/ui/cpu_binary.rs:2:33
+  |
+2 |     let _ = constlit::k8s::cpu!("2Gi");
+  |                                 ^^^^^

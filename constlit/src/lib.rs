@@ -48,6 +48,9 @@
 //! - `jiff`, `chrono`: `CronSpec::next_after` for those crates' date-times, and
 //!   `to_jiff` / `to_chrono` conversions of the date and time types.
 //! - `ipnet`, `semver`, `mime`: conversions to those crates' types (`mime` needs `std`).
+//! - `k8s-openapi`: [`k8s::Quantity`] converts into k8s-openapi's `Quantity`. As
+//!   k8s-openapi requires, your crate picks the Kubernetes version by enabling one of
+//!   k8s-openapi's `v1_*` features (or setting `K8S_OPENAPI_ENABLED_VERSION`).
 //!
 //! The crate is `no_std`, allocates nothing, and contains no `unsafe`.
 #![no_std]
@@ -59,7 +62,7 @@
 #[doc = include_str!("../../README.md")]
 struct ReadmeDoctests;
 
-#[cfg(feature = "mime")]
+#[cfg(any(feature = "mime", feature = "k8s-openapi"))]
 extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
@@ -70,6 +73,7 @@ mod cron;
 #[cfg(any(feature = "jiff", feature = "chrono"))]
 mod cron_time;
 mod date;
+pub mod k8s;
 pub mod linux;
 mod mac;
 mod media_type;

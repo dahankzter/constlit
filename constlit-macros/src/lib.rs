@@ -9,10 +9,13 @@ mod cron_gen;
 mod datetime;
 mod duration;
 mod input;
+mod k8s_names;
 mod mac;
 mod media_type;
 mod mode;
 mod net;
+mod quantity;
+mod selector;
 mod signal;
 mod size;
 mod suggest;
@@ -131,6 +134,97 @@ pub fn linux_caps(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     input::expand(input.into(), "\"CAP_NET_ADMIN, CAP_SYS_TIME\"", |s| {
         let bits = cap::parse_caps(s)?;
         Ok(quote!(::constlit::linux::CapSet::__from_bits_unchecked(#bits)))
+    })
+    .into()
+}
+
+/// A Kubernetes quantity literal as a `constlit::k8s::Quantity` constant. Use it as `constlit::k8s::quantity!`.
+#[proc_macro]
+pub fn k8s_quantity(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"1.5Gi\"", |s| {
+        let millis = quantity::parse_quantity(s)?.millis;
+        Ok(quote!(::constlit::k8s::Quantity::__new_unchecked(#millis, #s)))
+    })
+    .into()
+}
+
+/// A Kubernetes CPU amount as a `constlit::k8s::Quantity` constant. Use it as `constlit::k8s::cpu!`.
+#[proc_macro]
+pub fn k8s_cpu(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"500m\"", |s| {
+        let millis = quantity::parse_cpu(s)?;
+        Ok(quote!(::constlit::k8s::Quantity::__new_unchecked(#millis, #s)))
+    })
+    .into()
+}
+
+/// A Kubernetes memory or storage amount as a `constlit::k8s::Quantity` constant. Use it as `constlit::k8s::mem!`.
+#[proc_macro]
+pub fn k8s_mem(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"512Mi\"", |s| {
+        let millis = quantity::parse_mem(s)?;
+        Ok(quote!(::constlit::k8s::Quantity::__new_unchecked(#millis, #s)))
+    })
+    .into()
+}
+
+/// An RFC 1123 label (Kubernetes namespace and most object names), checked, as a `&'static str`. Use it as `constlit::k8s::dns_label!`.
+#[proc_macro]
+pub fn k8s_dns_label(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"my-app\"", |s| {
+        k8s_names::check_dns_label(s)?;
+        Ok(quote!(#s))
+    })
+    .into()
+}
+
+/// An RFC 1035 label (Kubernetes Service names), checked, as a `&'static str`. Use it as `constlit::k8s::dns1035_label!`.
+#[proc_macro]
+pub fn k8s_dns1035_label(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"web\"", |s| {
+        k8s_names::check_dns1035_label(s)?;
+        Ok(quote!(#s))
+    })
+    .into()
+}
+
+/// An RFC 1123 subdomain (Kubernetes ConfigMap, Secret and other names), checked, as a `&'static str`. Use it as `constlit::k8s::dns_subdomain!`.
+#[proc_macro]
+pub fn k8s_dns_subdomain(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"app.config.v1\"", |s| {
+        k8s_names::check_dns_subdomain(s)?;
+        Ok(quote!(#s))
+    })
+    .into()
+}
+
+/// A Kubernetes label key, checked, as a `&'static str`. Use it as `constlit::k8s::label_key!`.
+#[proc_macro]
+pub fn k8s_label_key(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"app.kubernetes.io/name\"", |s| {
+        k8s_names::check_label_key(s)?;
+        Ok(quote!(#s))
+    })
+    .into()
+}
+
+/// A Kubernetes label value, checked, as a `&'static str`. Use it as `constlit::k8s::label_value!`.
+#[proc_macro]
+pub fn k8s_label_value(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"web\"", |s| {
+        k8s_names::check_label_value(s)?;
+        Ok(quote!(#s))
+    })
+    .into()
+}
+
+/// A Kubernetes label selector, checked, as a `&'static str`. Use it as
+/// `constlit::k8s::selector!`.
+#[proc_macro]
+pub fn k8s_selector(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"app=web,env in (prod,staging)\"", |s| {
+        selector::check_selector(s)?;
+        Ok(quote!(#s))
     })
     .into()
 }

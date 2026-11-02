@@ -1,0 +1,5 @@
+error: prefix "Example.com": names must be lower case; write "example.com"
+ --> tests/ui/label_key_prefix.rs:2:39
+  |
+2 |     let _ = constlit::k8s::label_key!("Example.com/name");
+  |                                       ^^^^^^^^^^^^^^^^^^

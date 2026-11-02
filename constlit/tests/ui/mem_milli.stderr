@@ -1,0 +1,5 @@
+error: "500m" is 0.5 bytes ("m" means milli); did you mean "500Mi" or "500M"?
+ --> tests/ui/mem_milli.rs:2:33
+  |
+2 |     let _ = constlit::k8s::mem!("500m");
+  |                                 ^^^^^^

@@ -1,0 +1,5 @@
+error: invalid character `.`; use lower-case letters, digits and "-" (dns_subdomain! allows dots)
+ --> tests/ui/dns_label_dot.rs:2:39
+  |
+2 |     let _ = constlit::k8s::dns_label!("my.app");
+  |                                       ^^^^^^^^

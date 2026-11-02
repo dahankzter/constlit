@@ -1,0 +1,5 @@
+error: "K" is not a suffix; write "k" (1000) or "Ki" (1024)
+ --> tests/ui/quantity_upper_k.rs:2:38
+  |
+2 |     let _ = constlit::k8s::quantity!("1K");
+  |                                      ^^^^

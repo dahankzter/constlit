@@ -1,0 +1,5 @@
+error: value "-web": label values must start and end with a letter or digit
+ --> tests/ui/selector_bad_value.rs:2:38
+  |
+2 |     let _ = constlit::k8s::selector!("app=-web");
+  |                                      ^^^^^^^^^^

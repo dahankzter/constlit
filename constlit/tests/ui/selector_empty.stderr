@@ -1,0 +1,5 @@
+error: an empty selector matches everything; use your API's match-all form instead, e.g. LabelSelector::default()
+ --> tests/ui/selector_empty.rs:2:38
+  |
+2 |     let _ = constlit::k8s::selector!("");
+  |                                      ^^
