@@ -1,0 +1,5 @@
+error: repository names must be lower case; write "ghcr.io/org/app:1.2"
+ --> tests/ui/image_upper_repo.rs:2:35
+  |
+2 |     let _ = constlit::oci::image!("ghcr.io/Org/App:1.2");
+  |                                   ^^^^^^^^^^^^^^^^^^^^^

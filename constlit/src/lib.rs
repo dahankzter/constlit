@@ -77,6 +77,7 @@ pub mod k8s;
 pub mod linux;
 mod mac;
 mod media_type;
+pub mod oci;
 mod size;
 mod time_of_day;
 mod timestamp;

@@ -1,0 +1,3 @@
+fn main() {
+    let _ = constlit::oci::digest!("sha256:ABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABAB");
+}

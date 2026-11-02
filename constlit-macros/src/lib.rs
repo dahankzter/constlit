@@ -14,6 +14,9 @@ mod mac;
 mod media_type;
 mod mode;
 mod net;
+mod oci_digest;
+mod oci_image;
+mod oci_platform;
 mod quantity;
 mod selector;
 mod signal;
@@ -225,6 +228,58 @@ pub fn k8s_selector(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     input::expand(input.into(), "\"app=web,env in (prod,staging)\"", |s| {
         selector::check_selector(s)?;
         Ok(quote!(#s))
+    })
+    .into()
+}
+
+/// An OCI content digest literal as a `constlit::oci::Digest` constant. Use it as
+/// `constlit::oci::digest!`.
+#[proc_macro]
+pub fn oci_digest(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"sha256:...\"", |s| {
+        let (algorithm, bytes) = oci_digest::parse_digest(s)?;
+        Ok(oci_digest::digest_tokens(algorithm, &bytes))
+    })
+    .into()
+}
+
+/// A container image reference literal as a `constlit::oci::ImageRef` constant.
+/// Use it as `constlit::oci::image!`.
+#[proc_macro]
+pub fn oci_image(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"ghcr.io/org/app:1.2\"", |s| {
+        let image = oci_image::parse_image(s)?;
+        let (registry, repository, canonical) =
+            (&image.registry, &image.repository, &image.canonical);
+        let tag = match &image.tag {
+            Some(tag) => quote!(::core::option::Option::Some(#tag)),
+            None => quote!(::core::option::Option::None),
+        };
+        let digest = match &image.digest {
+            Some((algorithm, bytes, _)) => {
+                let digest = oci_digest::digest_tokens(*algorithm, bytes);
+                quote!(::core::option::Option::Some(#digest))
+            }
+            None => quote!(::core::option::Option::None),
+        };
+        Ok(quote!(::constlit::oci::ImageRef::__new_unchecked(
+            #s, #registry, #repository, #tag, #digest, #canonical
+        )))
+    })
+    .into()
+}
+
+/// An OCI platform literal as a `constlit::oci::Platform` constant. Use it as
+/// `constlit::oci::platform!`.
+#[proc_macro]
+pub fn oci_platform(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"linux/amd64\"", |s| {
+        let (os, arch, variant) = oci_platform::parse_platform(s)?;
+        let variant = match variant {
+            Some(v) => quote!(::core::option::Option::Some(#v)),
+            None => quote!(::core::option::Option::None),
+        };
+        Ok(quote!(::constlit::oci::Platform::__new_unchecked(#os, #arch, #variant)))
     })
     .into()
 }

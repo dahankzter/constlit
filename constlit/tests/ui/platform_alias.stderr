@@ -1,0 +1,5 @@
+error: "x86_64" is not a Go architecture name; write "linux/amd64"
+ --> tests/ui/platform_alias.rs:2:38
+  |
+2 |     let _ = constlit::oci::platform!("linux/x86_64");
+  |                                      ^^^^^^^^^^^^^^

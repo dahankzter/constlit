@@ -1,0 +1,5 @@
+error: variant "v8" doesn't apply to amd64; use v1, v2, v3 or v4
+ --> tests/ui/platform_variant.rs:2:38
+  |
+2 |     let _ = constlit::oci::platform!("linux/amd64/v8");
+  |                                      ^^^^^^^^^^^^^^^^

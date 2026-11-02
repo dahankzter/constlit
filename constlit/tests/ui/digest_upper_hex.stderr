@@ -1,0 +1,5 @@
+error: digests use lower-case hex: "sha256:abababababababababababababababababababababababababababababababab"
+ --> tests/ui/digest_upper_hex.rs:2:36
+  |
+2 |     let _ = constlit::oci::digest!("sha256:ABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABAB");
+  |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -6,27 +6,39 @@
 //	go run . quantity > ../src/testdata/k8s_quantity.tsv
 //	go run . names > ../src/testdata/k8s_names.tsv
 //	go run . selector > ../src/testdata/k8s_selector.tsv
+//	go run . digest > ../src/testdata/oci_digest.tsv
+//	go run . image > ../src/testdata/oci_image.tsv
+//	go run . platform > ../src/testdata/oci_platform.tsv
 //
 // Inputs never contain tabs or newlines, so each line splits on tabs.
 package main
 
 import (
+	// go-digest only accepts algorithms whose hash is linked in.
+	_ "crypto/sha256"
+	_ "crypto/sha512"
 	"fmt"
 	"math/rand"
 	"os"
+	"os/exec"
+	"runtime"
 	"runtime/debug"
 	"strings"
 
+	"github.com/containerd/platforms"
+	"github.com/distribution/reference"
+	"github.com/opencontainers/go-digest"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/validation"
 )
 
-func apimachineryVersion() string {
+// depVersion is the version of a dependency this binary was built with.
+func depVersion(path string) string {
 	info, ok := debug.ReadBuildInfo()
 	if ok {
 		for _, dep := range info.Deps {
-			if dep.Path == "k8s.io/apimachinery" {
+			if dep.Path == path {
 				return dep.Version
 			}
 		}
@@ -36,10 +48,20 @@ func apimachineryVersion() string {
 
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Fprintln(os.Stderr, "usage: constlit-oracle quantity|names|selector")
+		fmt.Fprintln(os.Stderr, "usage: constlit-oracle quantity|names|selector|digest|image|platform")
 		os.Exit(2)
 	}
-	fmt.Printf("# k8s.io/apimachinery %s\n", apimachineryVersion())
+	// The first line names what produced the verdicts.
+	switch os.Args[1] {
+	case "quantity", "names", "selector":
+		fmt.Printf("# k8s.io/apimachinery %s\n", depVersion("k8s.io/apimachinery"))
+	case "digest":
+		fmt.Printf("# github.com/opencontainers/go-digest %s\n", depVersion("github.com/opencontainers/go-digest"))
+	case "image":
+		fmt.Printf("# github.com/distribution/reference %s\n", depVersion("github.com/distribution/reference"))
+	case "platform":
+		fmt.Printf("# github.com/containerd/platforms %s, %s\n", depVersion("github.com/containerd/platforms"), runtime.Version())
+	}
 	switch os.Args[1] {
 	case "quantity":
 		quantities()
@@ -47,6 +69,12 @@ func main() {
 		names()
 	case "selector":
 		selectors()
+	case "digest":
+		digests()
+	case "image":
+		images()
+	case "platform":
+		platformsFixture()
 	default:
 		fmt.Fprintln(os.Stderr, "unknown subcommand", os.Args[1])
 		os.Exit(2)
@@ -243,5 +271,195 @@ func selectors() {
 			verdict = "err"
 		}
 		fmt.Printf("%s\t%s\n", s, verdict)
+	}
+}
+
+// hexOf writes bytes as lower-case hex.
+func hexOf(b []byte) string { return fmt.Sprintf("%x", b) }
+
+// Digest inputs: the plan's table, known byte patterns and generated ones.
+func fixedDigests() []string {
+	h64 := strings.Repeat("ab", 32)
+	h128 := strings.Repeat("cd", 64)
+	seq := make([]byte, 64)
+	for i := range seq {
+		seq[i] = byte(i + 1)
+	}
+	return []string{
+		"", " sha256:" + h64, h64, strings.Repeat("ef", 64), "abc", "sha384:" + strings.Repeat("a", 96),
+		"md5:" + strings.Repeat("a", 32), "SHA256:" + h64, "sha256:" + h64[:63],
+		"sha256:" + strings.ToUpper(h64), "sha256:" + h64[:63] + "g", "sha512:" + h128,
+		"sha256:" + hexOf(make([]byte, 32)), "sha256:" + hexOf(seq[:32]), "sha512:" + hexOf(seq),
+		"sha512:" + h128[:127], "sha256:", "sha256", ":" + h64,
+	}
+}
+
+// randomDigest is shared with the image generator.
+func randomDigest(r *rand.Rand) string {
+	// Mostly the two supported algorithms, mostly clean, so accepted inputs are common.
+	algs := []string{"sha256", "sha256", "sha256", "sha512", "sha512", "sha384", "SHA256", "md5", ""}
+	lengths := map[string]int{"sha256": 64, "sha512": 128, "sha384": 96, "SHA256": 64, "md5": 32, "": 64}
+	alg := algs[r.Intn(len(algs))]
+	n := r.Intn(131)
+	if r.Intn(3) != 0 {
+		n = lengths[alg]
+	}
+	dirty := r.Intn(3) == 0
+	var b strings.Builder
+	for i := 0; i < n; i++ {
+		pick := 2 + r.Intn(38)
+		if dirty {
+			pick = r.Intn(20)
+		}
+		switch pick {
+		case 0:
+			b.WriteByte("ABCDEF"[r.Intn(6)])
+		case 1:
+			b.WriteString([]string{"g", "é"}[r.Intn(2)])
+		default:
+			b.WriteByte("0123456789abcdef"[r.Intn(16)])
+		}
+	}
+	sep := ":"
+	if r.Intn(10) == 0 {
+		sep = ""
+	}
+	return alg + sep + b.String()
+}
+
+func digests() {
+	r := rand.New(rand.NewSource(4))
+	inputs := fixedDigests()
+	for i := 0; i < 1500; i++ {
+		inputs = append(inputs, randomDigest(r))
+	}
+	for _, s := range inputs {
+		verdict := "ok"
+		if _, err := digest.Parse(s); err != nil {
+			verdict = "err"
+		}
+		fmt.Printf("%s\t%s\n", s, verdict)
+	}
+}
+
+// Image reference inputs: the plan's table and focus cases plus generated ones.
+func images() {
+	d := "sha256:" + strings.Repeat("ab", 32)
+	hex64 := strings.Repeat("0123456789abcdef", 4)
+	fixed := []string{
+		"", " nginx", "nginx :1", "https://ghcr.io/org/app", "ghcr.io/Org/App:1.2", "MyOrg/app",
+		"org/app-", "org//app", "org/_app", "a..b", "exa_mple.com/app", "host:x/app", "nginx:",
+		"nginx:-x", "nginx:a+b", "nginx:" + strings.Repeat("t", 129), "nginx@", "nginx@latest",
+		"nginx@sha256:" + strings.Repeat("ab", 31) + "a", hex64, strings.Repeat("a", 256),
+		"x/" + strings.Repeat("a", 254), "nginx", "nginx:1.27", "user/app", "docker.io/nginx",
+		"index.docker.io/nginx", "localhost/app", "localhost:5000/app",
+		"registry.example.com:5000/app", "app:5000", "registry:5000/app:1.2",
+		"Registry.Example.com/app", "app:V1", "nginx@" + d, "ghcr.io/org/app:1.2@" + d,
+		"[::1]:5000/app", "127.0.0.1:5000/a/b:c", "a__b/c---d", "nginx:latest",
+		"nginx@sha384:" + strings.Repeat("a", 96), "localhost", "docker.io/library/nginx:latest",
+		"nginx:" + strings.Repeat("t", 128), "Org/app", "org/App",
+	}
+	r := rand.New(rand.NewSource(5))
+	registries := []string{"", "", "", "ghcr.io/", "localhost/", "localhost:5000/", "Reg.io/", "MyOrg/",
+		"index.docker.io/", "docker.io/", "[::1]:5000/", "a_b.io/"}
+	component := func() string {
+		var b strings.Builder
+		for i := 0; i < 1+r.Intn(8); i++ {
+			switch r.Intn(25) {
+			case 0:
+				b.WriteString([]string{".", "_", "-", "__", "A", "é"}[r.Intn(6)])
+			default:
+				b.WriteByte("abcxyz019"[r.Intn(9)])
+			}
+		}
+		return b.String()
+	}
+	// The upstream package's own test literals (upstream.go), as the spec asks.
+	inputs := append(fixed, upstreamReferences...)
+	for i := 0; i < 2000; i++ {
+		s := registries[r.Intn(len(registries))]
+		for j := 0; j < 1+r.Intn(3); j++ {
+			if j > 0 {
+				s += "/"
+			}
+			s += component()
+		}
+		if r.Intn(2) == 0 {
+			var t strings.Builder
+			for k := 0; k < 1+r.Intn(10); k++ {
+				t.WriteByte("abcXYZ019_.-"[r.Intn(12)])
+			}
+			s += ":" + t.String()
+		}
+		if r.Intn(4) == 0 {
+			s += "@" + randomDigest(r)
+		}
+		inputs = append(inputs, s)
+	}
+	dash := func(s string) string {
+		if s == "" {
+			return "-"
+		}
+		return s
+	}
+	for _, s := range inputs {
+		named, err := reference.ParseNormalizedNamed(s)
+		if err != nil {
+			fmt.Printf("%s\terr\n", s)
+			continue
+		}
+		tag, digestText := "", ""
+		if t, ok := named.(reference.Tagged); ok {
+			tag = t.Tag()
+		}
+		if dg, ok := named.(reference.Digested); ok {
+			digestText = dg.Digest().String()
+		}
+		full := reference.TagNameOnly(named)
+		fmt.Printf("%s\tok\t%s\t%s\t%s\t%s\t%s\n", s, full.String(), reference.Domain(named),
+			reference.Path(named), dash(tag), dash(digestText))
+	}
+}
+
+// Platform inputs: Go's own os/arch pairs, the plan's table and aliases, and
+// generated ones. containerd's Normalize is the oracle for alias suggestions.
+func platformsFixture() {
+	out, err := exec.Command("go", "tool", "dist", "list").Output()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "go tool dist list:", err)
+		os.Exit(1)
+	}
+	dist := strings.Fields(string(out))
+	for _, pair := range dist {
+		fmt.Printf("dist\t%s\n", pair)
+	}
+	fixed := []string{
+		"", " linux/amd64", "linux", "linux/arm/v7/x", "linux//amd64", "linux/amd64/", "Linux/AMD64",
+		"macos/arm64", "osx/arm64", "linux/x86_64", "linux/x86-64", "linux/aarch64", "linux/armv7",
+		"linux/armhf", "linux/armv6", "linux/armel", "linux/i386", "linux/i686", "linux/x86",
+		"lnux/amd64", "linux/amd46", "linux/amd64/v8", "linux/386/v1", "linux/arm/7",
+		"linux/arm64/v8", "linux/arm/v7", "windows/amd64", "darwin/arm64", "linux/arm64/v9.5",
+		"linux/amd64/v3", "wasip1/wasm", "linux/s390x", "linux/arm64", "linux/arm/v5",
+		"linux/arm64/v8.1", "linux/riscv64",
+	}
+	r := rand.New(rand.NewSource(6))
+	oses := []string{"linux", "windows", "darwin", "freebsd", "macos", "Linux", "wasip1", "lnux"}
+	arches := []string{"amd64", "arm64", "arm", "386", "riscv64", "x86_64", "aarch64", "armhf", "i386", "s390x", "ppc64le", "AMD64"}
+	variants := []string{"", "", "", "v1", "v3", "v5", "v6", "v7", "v8", "v8.2", "v9", "7"}
+	inputs := append(fixed, dist...)
+	for i := 0; i < 1000; i++ {
+		s := oses[r.Intn(len(oses))] + "/" + arches[r.Intn(len(arches))]
+		if v := variants[r.Intn(len(variants))]; v != "" {
+			s += "/" + v
+		}
+		inputs = append(inputs, s)
+	}
+	for _, s := range inputs {
+		p, err := platforms.Parse(s)
+		if err != nil {
+			fmt.Printf("parse\t%s\terr\n", s)
+			continue
+		}
+		fmt.Printf("parse\t%s\tok\t%s\n", s, platforms.Format(platforms.Normalize(p)))
 	}
 }

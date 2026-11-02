@@ -1,0 +1,1131 @@
+# github.com/containerd/platforms v0.2.1, go1.27.3-X:nodwarf5
+dist	aix/ppc64
+dist	android/386
+dist	android/amd64
+dist	android/arm
+dist	android/arm64
+dist	darwin/amd64
+dist	darwin/arm64
+dist	dragonfly/amd64
+dist	freebsd/386
+dist	freebsd/amd64
+dist	freebsd/arm
+dist	freebsd/arm64
+dist	illumos/amd64
+dist	ios/amd64
+dist	ios/arm64
+dist	js/wasm
+dist	linux/386
+dist	linux/amd64
+dist	linux/arm
+dist	linux/arm64
+dist	linux/loong64
+dist	linux/mips
+dist	linux/mips64
+dist	linux/mips64le
+dist	linux/mipsle
+dist	linux/ppc64
+dist	linux/ppc64le
+dist	linux/riscv64
+dist	linux/s390x
+dist	netbsd/386
+dist	netbsd/amd64
+dist	netbsd/arm
+dist	netbsd/arm64
+dist	openbsd/386
+dist	openbsd/amd64
+dist	openbsd/arm
+dist	openbsd/arm64
+dist	openbsd/ppc64
+dist	openbsd/riscv64
+dist	plan9/386
+dist	plan9/amd64
+dist	plan9/arm
+dist	solaris/amd64
+dist	wasip1/wasm
+dist	windows/386
+dist	windows/amd64
+dist	windows/arm64
+parse		err
+parse	 linux/amd64	err
+parse	linux	ok	linux/amd64
+parse	linux/arm/v7/x	err
+parse	linux//amd64	err
+parse	linux/amd64/	err
+parse	Linux/AMD64	ok	linux/amd64
+parse	macos/arm64	ok	darwin/arm64
+parse	osx/arm64	ok	osx/arm64
+parse	linux/x86_64	ok	linux/amd64
+parse	linux/x86-64	ok	linux/amd64
+parse	linux/aarch64	ok	linux/arm64
+parse	linux/armv7	ok	linux/armv7
+parse	linux/armhf	ok	linux/arm/v7
+parse	linux/armv6	ok	linux/armv6
+parse	linux/armel	ok	linux/arm/v6
+parse	linux/i386	ok	linux/386
+parse	linux/i686	ok	linux/i686
+parse	linux/x86	ok	linux/x86
+parse	lnux/amd64	ok	lnux/amd64
+parse	linux/amd46	ok	linux/amd46
+parse	linux/amd64/v8	ok	linux/amd64/v8
+parse	linux/386/v1	ok	linux/386/v1
+parse	linux/arm/7	ok	linux/arm/v7
+parse	linux/arm64/v8	ok	linux/arm64
+parse	linux/arm/v7	ok	linux/arm/v7
+parse	windows/amd64	ok	windows/amd64
+parse	darwin/arm64	ok	darwin/arm64
+parse	linux/arm64/v9.5	err
+parse	linux/amd64/v3	ok	linux/amd64/v3
+parse	wasip1/wasm	ok	wasip1/wasm
+parse	linux/s390x	ok	linux/s390x
+parse	linux/arm64	ok	linux/arm64
+parse	linux/arm/v5	ok	linux/arm/v5
+parse	linux/arm64/v8.1	err
+parse	linux/riscv64	ok	linux/riscv64
+parse	aix/ppc64	ok	aix/ppc64
+parse	android/386	ok	android/386
+parse	android/amd64	ok	android/amd64
+parse	android/arm	ok	android/arm/v7
+parse	android/arm64	ok	android/arm64
+parse	darwin/amd64	ok	darwin/amd64
+parse	darwin/arm64	ok	darwin/arm64
+parse	dragonfly/amd64	ok	dragonfly/amd64
+parse	freebsd/386	ok	freebsd/386
+parse	freebsd/amd64	ok	freebsd/amd64
+parse	freebsd/arm	ok	freebsd/arm/v7
+parse	freebsd/arm64	ok	freebsd/arm64
+parse	illumos/amd64	ok	illumos/amd64
+parse	ios/amd64	ok	ios/amd64
+parse	ios/arm64	ok	ios/arm64
+parse	js/wasm	ok	js/wasm
+parse	linux/386	ok	linux/386
+parse	linux/amd64	ok	linux/amd64
+parse	linux/arm	ok	linux/arm/v7
+parse	linux/arm64	ok	linux/arm64
+parse	linux/loong64	ok	linux/loong64
+parse	linux/mips	ok	linux/mips
+parse	linux/mips64	ok	linux/mips64
+parse	linux/mips64le	ok	linux/mips64le
+parse	linux/mipsle	ok	linux/mipsle
+parse	linux/ppc64	ok	linux/ppc64
+parse	linux/ppc64le	ok	linux/ppc64le
+parse	linux/riscv64	ok	linux/riscv64
+parse	linux/s390x	ok	linux/s390x
+parse	netbsd/386	ok	netbsd/386
+parse	netbsd/amd64	ok	netbsd/amd64
+parse	netbsd/arm	ok	netbsd/arm/v7
+parse	netbsd/arm64	ok	netbsd/arm64
+parse	openbsd/386	ok	openbsd/386
+parse	openbsd/amd64	ok	openbsd/amd64
+parse	openbsd/arm	ok	openbsd/arm/v7
+parse	openbsd/arm64	ok	openbsd/arm64
+parse	openbsd/ppc64	ok	openbsd/ppc64
+parse	openbsd/riscv64	ok	openbsd/riscv64
+parse	plan9/386	ok	plan9/386
+parse	plan9/amd64	ok	plan9/amd64
+parse	plan9/arm	ok	plan9/arm/v7
+parse	solaris/amd64	ok	solaris/amd64
+parse	wasip1/wasm	ok	wasip1/wasm
+parse	windows/386	ok	windows/386
+parse	windows/amd64	ok	windows/amd64
+parse	windows/arm64	ok	windows/arm64
+parse	macos/AMD64/v8	ok	darwin/amd64/v8
+parse	wasip1/ppc64le/v1	ok	wasip1/ppc64le/v1
+parse	linux/aarch64/v1	ok	linux/arm64/v1
+parse	lnux/s390x/v7	ok	lnux/s390x/v7
+parse	wasip1/AMD64/7	ok	wasip1/amd64/7
+parse	windows/i386/v1	ok	windows/386
+parse	windows/arm64	ok	windows/arm64
+parse	Linux/arm/v8.2	err
+parse	darwin/amd64	ok	darwin/amd64
+parse	wasip1/armhf/v6	ok	wasip1/arm/v7
+parse	darwin/riscv64/v1	ok	darwin/riscv64/v1
+parse	wasip1/x86_64	ok	wasip1/amd64
+parse	Linux/AMD64	ok	linux/amd64
+parse	darwin/i386/v1	ok	darwin/386
+parse	lnux/amd64/v6	ok	lnux/amd64/v6
+parse	macos/s390x/v8	ok	darwin/s390x/v8
+parse	linux/arm/v8	ok	linux/arm/v8
+parse	lnux/amd64	ok	lnux/amd64
+parse	windows/x86_64	ok	windows/amd64
+parse	darwin/amd64/7	ok	darwin/amd64/7
+parse	lnux/armhf	ok	lnux/arm/v7
+parse	windows/amd64/v5	ok	windows/amd64/v5
+parse	freebsd/aarch64/v1	ok	freebsd/arm64/v1
+parse	macos/arm/v9	ok	darwin/arm/v9
+parse	darwin/ppc64le/7	ok	darwin/ppc64le/7
+parse	macos/armhf/v7	ok	darwin/arm/v7
+parse	windows/armhf	ok	windows/arm/v7
+parse	darwin/x86_64/v8	ok	darwin/amd64/v8
+parse	lnux/x86_64/v3	ok	lnux/amd64/v3
+parse	lnux/arm64	ok	lnux/arm64
+parse	macos/arm64/7	ok	darwin/arm64/7
+parse	freebsd/i386/v7	ok	freebsd/386
+parse	wasip1/AMD64/v3	ok	wasip1/amd64/v3
+parse	lnux/riscv64/v5	ok	lnux/riscv64/v5
+parse	windows/ppc64le	ok	windows/ppc64le
+parse	windows/riscv64/7	ok	windows/riscv64/7
+parse	darwin/riscv64	ok	darwin/riscv64
+parse	freebsd/ppc64le/v5	ok	freebsd/ppc64le/v5
+parse	wasip1/s390x/7	ok	wasip1/s390x/7
+parse	macos/arm/v6	ok	darwin/arm/v6
+parse	windows/ppc64le/v6	ok	windows/ppc64le/v6
+parse	freebsd/x86_64/7	ok	freebsd/amd64/7
+parse	macos/riscv64/v6	ok	darwin/riscv64/v6
+parse	wasip1/arm64/v7	ok	wasip1/arm64/v7
+parse	Linux/s390x/v8.2	err
+parse	darwin/x86_64/v5	ok	darwin/amd64/v5
+parse	linux/AMD64/v9	ok	linux/amd64/v9
+parse	freebsd/armhf/v5	ok	freebsd/arm/v7
+parse	darwin/arm	ok	darwin/arm/v7
+parse	macos/aarch64/v6	ok	darwin/arm64/v6
+parse	wasip1/s390x/v7	ok	wasip1/s390x/v7
+parse	Linux/ppc64le/v6	ok	linux/ppc64le/v6
+parse	freebsd/s390x/v9	ok	freebsd/s390x/v9
+parse	freebsd/arm64/v8	ok	freebsd/arm64
+parse	lnux/AMD64	ok	lnux/amd64
+parse	linux/ppc64le/v5	ok	linux/ppc64le/v5
+parse	wasip1/arm64/v1	ok	wasip1/arm64/v1
+parse	wasip1/s390x	ok	wasip1/s390x
+parse	windows/i386/v9	ok	windows/386
+parse	windows/aarch64/v9	ok	windows/arm64/v9
+parse	freebsd/aarch64/v1	ok	freebsd/arm64/v1
+parse	Linux/amd64/v8.2	err
+parse	lnux/amd64/7	ok	lnux/amd64/7
+parse	darwin/arm64	ok	darwin/arm64
+parse	darwin/AMD64/v7	ok	darwin/amd64/v7
+parse	lnux/aarch64/7	ok	lnux/arm64/7
+parse	freebsd/ppc64le/v1	ok	freebsd/ppc64le/v1
+parse	darwin/riscv64/v8.2	err
+parse	wasip1/arm/v7	ok	wasip1/arm/v7
+parse	Linux/arm64/v9	ok	linux/arm64/v9
+parse	macos/aarch64/7	ok	darwin/arm64/7
+parse	macos/amd64	ok	darwin/amd64
+parse	lnux/riscv64/v6	ok	lnux/riscv64/v6
+parse	windows/armhf/v8	ok	windows/arm/v7
+parse	windows/riscv64/v9	ok	windows/riscv64/v9
+parse	freebsd/s390x	ok	freebsd/s390x
+parse	darwin/i386/v3	ok	darwin/386
+parse	wasip1/amd64/v8.2	err
+parse	lnux/386/7	ok	lnux/386/7
+parse	lnux/AMD64/v7	ok	lnux/amd64/v7
+parse	Linux/aarch64	ok	linux/arm64
+parse	wasip1/arm	ok	wasip1/arm/v7
+parse	freebsd/386	ok	freebsd/386
+parse	lnux/amd64/v7	ok	lnux/amd64/v7
+parse	darwin/386/7	ok	darwin/386/7
+parse	macos/armhf/v8.2	err
+parse	windows/arm64/v6	ok	windows/arm64/v6
+parse	macos/arm/v8.2	err
+parse	freebsd/AMD64/7	ok	freebsd/amd64/7
+parse	Linux/aarch64	ok	linux/arm64
+parse	lnux/riscv64/v8	ok	lnux/riscv64/v8
+parse	linux/i386/v1	ok	linux/386
+parse	freebsd/amd64/v1	ok	freebsd/amd64
+parse	macos/AMD64/v8.2	err
+parse	freebsd/s390x/v5	ok	freebsd/s390x/v5
+parse	windows/AMD64	ok	windows/amd64
+parse	windows/armhf/v5	ok	windows/arm/v7
+parse	Linux/amd64/v9	ok	linux/amd64/v9
+parse	macos/arm64/v8.2	err
+parse	wasip1/x86_64/v5	ok	wasip1/amd64/v5
+parse	wasip1/386	ok	wasip1/386
+parse	macos/aarch64/7	ok	darwin/arm64/7
+parse	lnux/i386/v9	ok	lnux/386
+parse	macos/riscv64/v8.2	err
+parse	freebsd/i386/v5	ok	freebsd/386
+parse	windows/ppc64le	ok	windows/ppc64le
+parse	Linux/s390x/v6	ok	linux/s390x/v6
+parse	lnux/arm/v8.2	err
+parse	wasip1/ppc64le/v3	ok	wasip1/ppc64le/v3
+parse	darwin/x86_64/7	ok	darwin/amd64/7
+parse	Linux/aarch64/v7	ok	linux/arm64/v7
+parse	freebsd/i386/7	ok	freebsd/386
+parse	linux/riscv64	ok	linux/riscv64
+parse	linux/s390x/v7	ok	linux/s390x/v7
+parse	darwin/arm	ok	darwin/arm/v7
+parse	linux/AMD64/v5	ok	linux/amd64/v5
+parse	freebsd/x86_64/v3	ok	freebsd/amd64/v3
+parse	linux/386	ok	linux/386
+parse	macos/amd64	ok	darwin/amd64
+parse	wasip1/aarch64/v8	ok	wasip1/arm64
+parse	freebsd/amd64/v8.2	err
+parse	Linux/armhf/7	ok	linux/arm/v7
+parse	lnux/amd64/v7	ok	lnux/amd64/v7
+parse	windows/amd64/v5	ok	windows/amd64/v5
+parse	Linux/arm/v9	ok	linux/arm/v9
+parse	wasip1/armhf/v8	ok	wasip1/arm/v7
+parse	darwin/i386/v7	ok	darwin/386
+parse	wasip1/arm/v8	ok	wasip1/arm/v8
+parse	Linux/riscv64/v1	ok	linux/riscv64/v1
+parse	macos/386	ok	darwin/386
+parse	windows/x86_64	ok	windows/amd64
+parse	lnux/s390x/v5	ok	lnux/s390x/v5
+parse	windows/amd64/v8.2	err
+parse	windows/ppc64le/v7	ok	windows/ppc64le/v7
+parse	wasip1/aarch64	ok	wasip1/arm64
+parse	lnux/aarch64/v1	ok	lnux/arm64/v1
+parse	freebsd/aarch64/v8	ok	freebsd/arm64
+parse	Linux/amd64	ok	linux/amd64
+parse	freebsd/arm64/v3	ok	freebsd/arm64/v3
+parse	windows/i386/v8	ok	windows/386
+parse	macos/i386/v1	ok	darwin/386
+parse	freebsd/armhf/v8	ok	freebsd/arm/v7
+parse	freebsd/arm/v1	ok	freebsd/arm/v1
+parse	macos/i386/v1	ok	darwin/386
+parse	darwin/arm64/v6	ok	darwin/arm64/v6
+parse	darwin/armhf	ok	darwin/arm/v7
+parse	windows/riscv64/v1	ok	windows/riscv64/v1
+parse	Linux/aarch64/v6	ok	linux/arm64/v6
+parse	macos/386/v8.2	err
+parse	macos/arm64/7	ok	darwin/arm64/7
+parse	freebsd/AMD64/v7	ok	freebsd/amd64/v7
+parse	windows/x86_64/v3	ok	windows/amd64/v3
+parse	darwin/i386/7	ok	darwin/386
+parse	darwin/AMD64/v5	ok	darwin/amd64/v5
+parse	Linux/s390x/v3	ok	linux/s390x/v3
+parse	Linux/riscv64/v9	ok	linux/riscv64/v9
+parse	macos/amd64	ok	darwin/amd64
+parse	lnux/arm64	ok	lnux/arm64
+parse	wasip1/i386/v9	ok	wasip1/386
+parse	lnux/s390x/v8.2	err
+parse	linux/ppc64le/v6	ok	linux/ppc64le/v6
+parse	Linux/aarch64/v6	ok	linux/arm64/v6
+parse	wasip1/386/v5	ok	wasip1/386/v5
+parse	linux/arm64/v5	ok	linux/arm64/v5
+parse	wasip1/amd64/v9	ok	wasip1/amd64/v9
+parse	windows/ppc64le/v1	ok	windows/ppc64le/v1
+parse	linux/arm/v3	ok	linux/arm/v3
+parse	windows/arm/v7	ok	windows/arm/v7
+parse	linux/aarch64/v3	ok	linux/arm64/v3
+parse	freebsd/riscv64/v3	ok	freebsd/riscv64/v3
+parse	windows/arm64/v5	ok	windows/arm64/v5
+parse	windows/armhf/v8	ok	windows/arm/v7
+parse	freebsd/AMD64/v9	ok	freebsd/amd64/v9
+parse	freebsd/arm64/v7	ok	freebsd/arm64/v7
+parse	Linux/amd64/v7	ok	linux/amd64/v7
+parse	windows/amd64	ok	windows/amd64
+parse	wasip1/amd64/v9	ok	wasip1/amd64/v9
+parse	lnux/riscv64/v8	ok	lnux/riscv64/v8
+parse	windows/arm64/v8.2	err
+parse	lnux/riscv64/v6	ok	lnux/riscv64/v6
+parse	macos/386/v7	ok	darwin/386/v7
+parse	linux/ppc64le/v3	ok	linux/ppc64le/v3
+parse	darwin/arm	ok	darwin/arm/v7
+parse	wasip1/aarch64	ok	wasip1/arm64
+parse	macos/arm/v3	ok	darwin/arm/v3
+parse	wasip1/x86_64/v1	ok	wasip1/amd64
+parse	freebsd/ppc64le/v8	ok	freebsd/ppc64le/v8
+parse	windows/386/v9	ok	windows/386/v9
+parse	darwin/aarch64/7	ok	darwin/arm64/7
+parse	wasip1/AMD64/v7	ok	wasip1/amd64/v7
+parse	windows/armhf/v9	ok	windows/arm/v7
+parse	Linux/x86_64	ok	linux/amd64
+parse	windows/riscv64/v7	ok	windows/riscv64/v7
+parse	wasip1/arm64/7	ok	wasip1/arm64/7
+parse	darwin/riscv64/v7	ok	darwin/riscv64/v7
+parse	windows/armhf/v7	ok	windows/arm/v7
+parse	freebsd/AMD64/v8.2	err
+parse	freebsd/AMD64	ok	freebsd/amd64
+parse	linux/AMD64/v5	ok	linux/amd64/v5
+parse	linux/amd64	ok	linux/amd64
+parse	windows/arm64/7	ok	windows/arm64/7
+parse	lnux/aarch64/v9	ok	lnux/arm64/v9
+parse	linux/s390x/v1	ok	linux/s390x/v1
+parse	windows/aarch64/v3	ok	windows/arm64/v3
+parse	macos/ppc64le	ok	darwin/ppc64le
+parse	darwin/aarch64	ok	darwin/arm64
+parse	macos/arm/v5	ok	darwin/arm/v5
+parse	lnux/386/v3	ok	lnux/386/v3
+parse	lnux/riscv64/v6	ok	lnux/riscv64/v6
+parse	freebsd/ppc64le/v1	ok	freebsd/ppc64le/v1
+parse	lnux/riscv64/v8	ok	lnux/riscv64/v8
+parse	freebsd/armhf/v5	ok	freebsd/arm/v7
+parse	linux/arm/v7	ok	linux/arm/v7
+parse	wasip1/ppc64le	ok	wasip1/ppc64le
+parse	lnux/arm/v3	ok	lnux/arm/v3
+parse	lnux/amd64/v9	ok	lnux/amd64/v9
+parse	Linux/386/v8	ok	linux/386/v8
+parse	Linux/s390x/v3	ok	linux/s390x/v3
+parse	wasip1/armhf/7	ok	wasip1/arm/v7
+parse	windows/AMD64/v7	ok	windows/amd64/v7
+parse	darwin/amd64/v7	ok	darwin/amd64/v7
+parse	lnux/386/v5	ok	lnux/386/v5
+parse	darwin/x86_64/v3	ok	darwin/amd64/v3
+parse	linux/arm64	ok	linux/arm64
+parse	darwin/arm/v5	ok	darwin/arm/v5
+parse	Linux/arm/v6	ok	linux/arm/v6
+parse	Linux/i386	ok	linux/386
+parse	darwin/armhf/v7	ok	darwin/arm/v7
+parse	Linux/s390x/v9	ok	linux/s390x/v9
+parse	linux/i386	ok	linux/386
+parse	darwin/386/v6	ok	darwin/386/v6
+parse	windows/riscv64/v3	ok	windows/riscv64/v3
+parse	lnux/i386	ok	lnux/386
+parse	lnux/aarch64/7	ok	lnux/arm64/7
+parse	macos/aarch64/v1	ok	darwin/arm64/v1
+parse	darwin/i386/v9	ok	darwin/386
+parse	freebsd/amd64/7	ok	freebsd/amd64/7
+parse	freebsd/s390x/v7	ok	freebsd/s390x/v7
+parse	macos/amd64/v9	ok	darwin/amd64/v9
+parse	lnux/aarch64/v8	ok	lnux/arm64
+parse	Linux/riscv64	ok	linux/riscv64
+parse	darwin/i386/v9	ok	darwin/386
+parse	linux/armhf	ok	linux/arm/v7
+parse	windows/AMD64/v3	ok	windows/amd64/v3
+parse	windows/armhf	ok	windows/arm/v7
+parse	linux/i386/v9	ok	linux/386
+parse	macos/x86_64/7	ok	darwin/amd64/7
+parse	Linux/armhf/v7	ok	linux/arm/v7
+parse	linux/x86_64/v1	ok	linux/amd64
+parse	Linux/riscv64/v9	ok	linux/riscv64/v9
+parse	windows/armhf	ok	windows/arm/v7
+parse	darwin/arm	ok	darwin/arm/v7
+parse	linux/arm64/v3	ok	linux/arm64/v3
+parse	windows/arm64/v1	ok	windows/arm64/v1
+parse	freebsd/x86_64/v1	ok	freebsd/amd64
+parse	Linux/AMD64/v1	ok	linux/amd64
+parse	darwin/aarch64/v1	ok	darwin/arm64/v1
+parse	wasip1/aarch64/v6	ok	wasip1/arm64/v6
+parse	darwin/riscv64/v8	ok	darwin/riscv64/v8
+parse	macos/riscv64	ok	darwin/riscv64
+parse	darwin/aarch64/v3	ok	darwin/arm64/v3
+parse	linux/ppc64le	ok	linux/ppc64le
+parse	macos/386	ok	darwin/386
+parse	freebsd/arm64/v9	ok	freebsd/arm64/v9
+parse	macos/arm64/7	ok	darwin/arm64/7
+parse	windows/arm	ok	windows/arm/v7
+parse	darwin/AMD64/7	ok	darwin/amd64/7
+parse	wasip1/i386/v8.2	err
+parse	wasip1/386/7	ok	wasip1/386/7
+parse	macos/386/v5	ok	darwin/386/v5
+parse	linux/aarch64	ok	linux/arm64
+parse	linux/riscv64	ok	linux/riscv64
+parse	wasip1/aarch64	ok	wasip1/arm64
+parse	wasip1/ppc64le/v5	ok	wasip1/ppc64le/v5
+parse	freebsd/ppc64le/v8.2	err
+parse	lnux/AMD64	ok	lnux/amd64
+parse	darwin/aarch64/v7	ok	darwin/arm64/v7
+parse	windows/x86_64/v9	ok	windows/amd64/v9
+parse	wasip1/arm64/7	ok	wasip1/arm64/7
+parse	freebsd/amd64/7	ok	freebsd/amd64/7
+parse	macos/ppc64le	ok	darwin/ppc64le
+parse	macos/aarch64/v8.2	err
+parse	Linux/ppc64le	ok	linux/ppc64le
+parse	freebsd/AMD64/v9	ok	freebsd/amd64/v9
+parse	macos/riscv64/v7	ok	darwin/riscv64/v7
+parse	windows/i386	ok	windows/386
+parse	macos/arm64/v1	ok	darwin/arm64/v1
+parse	lnux/amd64/v3	ok	lnux/amd64/v3
+parse	Linux/x86_64	ok	linux/amd64
+parse	darwin/AMD64/7	ok	darwin/amd64/7
+parse	windows/386/v1	ok	windows/386/v1
+parse	windows/386/v5	ok	windows/386/v5
+parse	macos/aarch64/v7	ok	darwin/arm64/v7
+parse	Linux/s390x/v3	ok	linux/s390x/v3
+parse	linux/x86_64/v8.2	err
+parse	linux/386	ok	linux/386
+parse	freebsd/x86_64/v1	ok	freebsd/amd64
+parse	wasip1/386/v8.2	err
+parse	linux/i386/v3	ok	linux/386
+parse	windows/aarch64/v9	ok	windows/arm64/v9
+parse	darwin/aarch64/v8.2	err
+parse	windows/armhf/v6	ok	windows/arm/v7
+parse	Linux/s390x/v8	ok	linux/s390x/v8
+parse	Linux/arm	ok	linux/arm/v7
+parse	darwin/s390x	ok	darwin/s390x
+parse	windows/ppc64le	ok	windows/ppc64le
+parse	Linux/armhf/7	ok	linux/arm/v7
+parse	freebsd/s390x/7	ok	freebsd/s390x/7
+parse	Linux/aarch64	ok	linux/arm64
+parse	linux/arm	ok	linux/arm/v7
+parse	lnux/arm/v8.2	err
+parse	lnux/386/v3	ok	lnux/386/v3
+parse	darwin/x86_64/v1	ok	darwin/amd64
+parse	darwin/s390x	ok	darwin/s390x
+parse	macos/ppc64le/v9	ok	darwin/ppc64le/v9
+parse	macos/AMD64/v7	ok	darwin/amd64/v7
+parse	Linux/s390x/v8.2	err
+parse	darwin/arm64	ok	darwin/arm64
+parse	linux/aarch64	ok	linux/arm64
+parse	Linux/aarch64/v6	ok	linux/arm64/v6
+parse	Linux/arm64	ok	linux/arm64
+parse	lnux/x86_64	ok	lnux/amd64
+parse	Linux/AMD64/v8.2	err
+parse	Linux/x86_64/v8.2	err
+parse	lnux/arm/v1	ok	lnux/arm/v1
+parse	freebsd/i386/v7	ok	freebsd/386
+parse	lnux/aarch64/v3	ok	lnux/arm64/v3
+parse	Linux/386/7	ok	linux/386/7
+parse	lnux/i386/v8	ok	lnux/386
+parse	lnux/AMD64	ok	lnux/amd64
+parse	linux/AMD64/v3	ok	linux/amd64/v3
+parse	linux/amd64/v8	ok	linux/amd64/v8
+parse	linux/arm64/v7	ok	linux/arm64/v7
+parse	macos/386/v3	ok	darwin/386/v3
+parse	wasip1/s390x/v8	ok	wasip1/s390x/v8
+parse	lnux/x86_64	ok	lnux/amd64
+parse	freebsd/386/v3	ok	freebsd/386/v3
+parse	windows/x86_64/v6	ok	windows/amd64/v6
+parse	macos/aarch64/v6	ok	darwin/arm64/v6
+parse	linux/armhf/v7	ok	linux/arm/v7
+parse	lnux/armhf	ok	lnux/arm/v7
+parse	wasip1/s390x/v8	ok	wasip1/s390x/v8
+parse	lnux/AMD64	ok	lnux/amd64
+parse	lnux/amd64/v3	ok	lnux/amd64/v3
+parse	wasip1/x86_64/v9	ok	wasip1/amd64/v9
+parse	darwin/aarch64/v1	ok	darwin/arm64/v1
+parse	Linux/aarch64/v5	ok	linux/arm64/v5
+parse	linux/i386/v9	ok	linux/386
+parse	lnux/i386/v1	ok	lnux/386
+parse	windows/aarch64/v7	ok	windows/arm64/v7
+parse	freebsd/s390x/v5	ok	freebsd/s390x/v5
+parse	linux/aarch64/v6	ok	linux/arm64/v6
+parse	macos/s390x/v3	ok	darwin/s390x/v3
+parse	freebsd/i386/7	ok	freebsd/386
+parse	linux/i386/v7	ok	linux/386
+parse	lnux/AMD64/7	ok	lnux/amd64/7
+parse	lnux/riscv64	ok	lnux/riscv64
+parse	lnux/amd64/v8	ok	lnux/amd64/v8
+parse	macos/riscv64/v9	ok	darwin/riscv64/v9
+parse	macos/arm	ok	darwin/arm/v7
+parse	Linux/ppc64le	ok	linux/ppc64le
+parse	freebsd/arm/v8.2	err
+parse	wasip1/x86_64/7	ok	wasip1/amd64/7
+parse	macos/amd64	ok	darwin/amd64
+parse	linux/x86_64/v8.2	err
+parse	macos/arm/7	ok	darwin/arm/v7
+parse	macos/aarch64	ok	darwin/arm64
+parse	macos/riscv64/v6	ok	darwin/riscv64/v6
+parse	linux/ppc64le	ok	linux/ppc64le
+parse	wasip1/aarch64/v5	ok	wasip1/arm64/v5
+parse	darwin/s390x/v6	ok	darwin/s390x/v6
+parse	macos/arm/v7	ok	darwin/arm/v7
+parse	linux/386	ok	linux/386
+parse	lnux/386	ok	lnux/386
+parse	freebsd/AMD64/v8.2	err
+parse	darwin/armhf/v8.2	err
+parse	macos/s390x	ok	darwin/s390x
+parse	lnux/AMD64/v1	ok	lnux/amd64
+parse	linux/386/v8	ok	linux/386/v8
+parse	lnux/i386/v6	ok	lnux/386
+parse	lnux/arm64	ok	lnux/arm64
+parse	freebsd/AMD64/v7	ok	freebsd/amd64/v7
+parse	lnux/armhf/v8.2	err
+parse	linux/arm/v8.2	err
+parse	Linux/AMD64/v6	ok	linux/amd64/v6
+parse	windows/i386/v7	ok	windows/386
+parse	Linux/386/v3	ok	linux/386/v3
+parse	freebsd/armhf/v8	ok	freebsd/arm/v7
+parse	darwin/armhf	ok	darwin/arm/v7
+parse	windows/s390x	ok	windows/s390x
+parse	macos/s390x/v3	ok	darwin/s390x/v3
+parse	Linux/s390x/v8	ok	linux/s390x/v8
+parse	Linux/amd64/v5	ok	linux/amd64/v5
+parse	macos/AMD64	ok	darwin/amd64
+parse	lnux/amd64/v7	ok	lnux/amd64/v7
+parse	wasip1/amd64	ok	wasip1/amd64
+parse	Linux/s390x/v8	ok	linux/s390x/v8
+parse	Linux/s390x/v6	ok	linux/s390x/v6
+parse	darwin/riscv64/7	ok	darwin/riscv64/7
+parse	darwin/ppc64le/v5	ok	darwin/ppc64le/v5
+parse	wasip1/AMD64/v3	ok	wasip1/amd64/v3
+parse	macos/AMD64/v9	ok	darwin/amd64/v9
+parse	macos/i386/v9	ok	darwin/386
+parse	darwin/x86_64	ok	darwin/amd64
+parse	windows/aarch64/v9	ok	windows/arm64/v9
+parse	freebsd/386/v5	ok	freebsd/386/v5
+parse	windows/armhf/v6	ok	windows/arm/v7
+parse	freebsd/386/v7	ok	freebsd/386/v7
+parse	macos/aarch64/v7	ok	darwin/arm64/v7
+parse	windows/s390x/v3	ok	windows/s390x/v3
+parse	wasip1/x86_64/v9	ok	wasip1/amd64/v9
+parse	lnux/i386	ok	lnux/386
+parse	freebsd/x86_64/v8.2	err
+parse	windows/386/v5	ok	windows/386/v5
+parse	lnux/arm64/v1	ok	lnux/arm64/v1
+parse	lnux/riscv64/v5	ok	lnux/riscv64/v5
+parse	linux/386	ok	linux/386
+parse	freebsd/s390x/v8	ok	freebsd/s390x/v8
+parse	macos/riscv64/v1	ok	darwin/riscv64/v1
+parse	macos/arm64/v5	ok	darwin/arm64/v5
+parse	macos/s390x	ok	darwin/s390x
+parse	freebsd/arm64/v1	ok	freebsd/arm64/v1
+parse	linux/386	ok	linux/386
+parse	macos/s390x/7	ok	darwin/s390x/7
+parse	wasip1/arm/v9	ok	wasip1/arm/v9
+parse	darwin/arm64	ok	darwin/arm64
+parse	darwin/amd64/v8	ok	darwin/amd64/v8
+parse	Linux/amd64/v9	ok	linux/amd64/v9
+parse	macos/arm/v1	ok	darwin/arm/v1
+parse	darwin/amd64	ok	darwin/amd64
+parse	macos/s390x/v5	ok	darwin/s390x/v5
+parse	Linux/amd64	ok	linux/amd64
+parse	lnux/AMD64/v3	ok	lnux/amd64/v3
+parse	windows/amd64/v8.2	err
+parse	linux/amd64	ok	linux/amd64
+parse	linux/arm64/v3	ok	linux/arm64/v3
+parse	windows/aarch64/v9	ok	windows/arm64/v9
+parse	linux/x86_64/v6	ok	linux/amd64/v6
+parse	wasip1/amd64/7	ok	wasip1/amd64/7
+parse	lnux/386/v3	ok	lnux/386/v3
+parse	macos/ppc64le/v8	ok	darwin/ppc64le/v8
+parse	windows/s390x/v1	ok	windows/s390x/v1
+parse	macos/amd64/v9	ok	darwin/amd64/v9
+parse	Linux/amd64	ok	linux/amd64
+parse	darwin/riscv64/v7	ok	darwin/riscv64/v7
+parse	lnux/arm64/v9	ok	lnux/arm64/v9
+parse	linux/arm64/v9	ok	linux/arm64/v9
+parse	wasip1/riscv64/7	ok	wasip1/riscv64/7
+parse	windows/s390x	ok	windows/s390x
+parse	linux/arm64/v8.2	err
+parse	lnux/AMD64/v9	ok	lnux/amd64/v9
+parse	macos/armhf/7	ok	darwin/arm/v7
+parse	darwin/armhf/v8.2	err
+parse	darwin/AMD64/v6	ok	darwin/amd64/v6
+parse	linux/i386	ok	linux/386
+parse	Linux/ppc64le/v1	ok	linux/ppc64le/v1
+parse	macos/s390x/v8	ok	darwin/s390x/v8
+parse	freebsd/riscv64/v3	ok	freebsd/riscv64/v3
+parse	macos/ppc64le/v5	ok	darwin/ppc64le/v5
+parse	macos/riscv64/v7	ok	darwin/riscv64/v7
+parse	Linux/riscv64/v9	ok	linux/riscv64/v9
+parse	darwin/arm64/v9	ok	darwin/arm64/v9
+parse	wasip1/s390x/v5	ok	wasip1/s390x/v5
+parse	Linux/AMD64/v5	ok	linux/amd64/v5
+parse	freebsd/i386/v1	ok	freebsd/386
+parse	windows/arm/7	ok	windows/arm/v7
+parse	Linux/amd64	ok	linux/amd64
+parse	macos/386/v1	ok	darwin/386/v1
+parse	macos/arm64/v7	ok	darwin/arm64/v7
+parse	lnux/aarch64/v3	ok	lnux/arm64/v3
+parse	Linux/aarch64/v9	ok	linux/arm64/v9
+parse	wasip1/s390x/v3	ok	wasip1/s390x/v3
+parse	windows/386/v5	ok	windows/386/v5
+parse	freebsd/i386	ok	freebsd/386
+parse	Linux/riscv64/v8	ok	linux/riscv64/v8
+parse	macos/s390x/v5	ok	darwin/s390x/v5
+parse	freebsd/amd64/v5	ok	freebsd/amd64/v5
+parse	wasip1/ppc64le/v3	ok	wasip1/ppc64le/v3
+parse	lnux/x86_64/v7	ok	lnux/amd64/v7
+parse	darwin/amd64/v8.2	err
+parse	freebsd/amd64/v6	ok	freebsd/amd64/v6
+parse	lnux/riscv64/v8.2	err
+parse	windows/aarch64/7	ok	windows/arm64/7
+parse	linux/x86_64	ok	linux/amd64
+parse	Linux/amd64/v3	ok	linux/amd64/v3
+parse	macos/riscv64/7	ok	darwin/riscv64/7
+parse	macos/i386/7	ok	darwin/386
+parse	windows/AMD64/v5	ok	windows/amd64/v5
+parse	Linux/x86_64	ok	linux/amd64
+parse	Linux/riscv64	ok	linux/riscv64
+parse	lnux/386/v9	ok	lnux/386/v9
+parse	windows/s390x/v8	ok	windows/s390x/v8
+parse	lnux/x86_64	ok	lnux/amd64
+parse	lnux/aarch64	ok	lnux/arm64
+parse	linux/x86_64/v8	ok	linux/amd64/v8
+parse	macos/AMD64/v7	ok	darwin/amd64/v7
+parse	freebsd/386	ok	freebsd/386
+parse	wasip1/riscv64	ok	wasip1/riscv64
+parse	windows/arm/v3	ok	windows/arm/v3
+parse	linux/s390x/7	ok	linux/s390x/7
+parse	freebsd/arm/v3	ok	freebsd/arm/v3
+parse	freebsd/AMD64/v8	ok	freebsd/amd64/v8
+parse	wasip1/armhf/7	ok	wasip1/arm/v7
+parse	linux/armhf/v3	ok	linux/arm/v7
+parse	macos/x86_64	ok	darwin/amd64
+parse	linux/ppc64le/v6	ok	linux/ppc64le/v6
+parse	darwin/armhf/v1	ok	darwin/arm/v7
+parse	windows/i386	ok	windows/386
+parse	linux/armhf/v8	ok	linux/arm/v7
+parse	lnux/armhf/v3	ok	lnux/arm/v7
+parse	lnux/aarch64/v1	ok	lnux/arm64/v1
+parse	wasip1/arm/v1	ok	wasip1/arm/v1
+parse	windows/x86_64/v9	ok	windows/amd64/v9
+parse	darwin/AMD64/v3	ok	darwin/amd64/v3
+parse	windows/i386/v8	ok	windows/386
+parse	Linux/amd64/v8	ok	linux/amd64/v8
+parse	lnux/x86_64/7	ok	lnux/amd64/7
+parse	macos/i386/v7	ok	darwin/386
+parse	windows/ppc64le/v7	ok	windows/ppc64le/v7
+parse	windows/x86_64/v8.2	err
+parse	freebsd/i386	ok	freebsd/386
+parse	windows/armhf/7	ok	windows/arm/v7
+parse	linux/ppc64le	ok	linux/ppc64le
+parse	darwin/386/v9	ok	darwin/386/v9
+parse	wasip1/arm64/v8.2	err
+parse	Linux/s390x/v9	ok	linux/s390x/v9
+parse	darwin/s390x/v9	ok	darwin/s390x/v9
+parse	macos/arm/v9	ok	darwin/arm/v9
+parse	macos/i386	ok	darwin/386
+parse	wasip1/ppc64le/v6	ok	wasip1/ppc64le/v6
+parse	lnux/armhf	ok	lnux/arm/v7
+parse	Linux/ppc64le/v7	ok	linux/ppc64le/v7
+parse	freebsd/s390x/v1	ok	freebsd/s390x/v1
+parse	macos/arm64/v1	ok	darwin/arm64/v1
+parse	wasip1/i386	ok	wasip1/386
+parse	windows/x86_64	ok	windows/amd64
+parse	lnux/AMD64/v8	ok	lnux/amd64/v8
+parse	Linux/arm64/v3	ok	linux/arm64/v3
+parse	freebsd/riscv64	ok	freebsd/riscv64
+parse	Linux/AMD64/v7	ok	linux/amd64/v7
+parse	lnux/arm/v1	ok	lnux/arm/v1
+parse	darwin/386/v6	ok	darwin/386/v6
+parse	macos/armhf/v7	ok	darwin/arm/v7
+parse	darwin/arm/v9	ok	darwin/arm/v9
+parse	lnux/arm/v5	ok	lnux/arm/v5
+parse	windows/386/v7	ok	windows/386/v7
+parse	windows/arm64/v8.2	err
+parse	darwin/AMD64/v7	ok	darwin/amd64/v7
+parse	lnux/s390x/v9	ok	lnux/s390x/v9
+parse	wasip1/386	ok	wasip1/386
+parse	freebsd/i386/v8	ok	freebsd/386
+parse	macos/aarch64/v8	ok	darwin/arm64
+parse	wasip1/amd64	ok	wasip1/amd64
+parse	macos/aarch64	ok	darwin/arm64
+parse	linux/amd64/v6	ok	linux/amd64/v6
+parse	freebsd/armhf	ok	freebsd/arm/v7
+parse	Linux/ppc64le/7	ok	linux/ppc64le/7
+parse	macos/riscv64/v6	ok	darwin/riscv64/v6
+parse	freebsd/aarch64/7	ok	freebsd/arm64/7
+parse	darwin/i386	ok	darwin/386
+parse	linux/aarch64	ok	linux/arm64
+parse	macos/arm/v5	ok	darwin/arm/v5
+parse	freebsd/AMD64/v1	ok	freebsd/amd64
+parse	lnux/386	ok	lnux/386
+parse	windows/ppc64le/v6	ok	windows/ppc64le/v6
+parse	Linux/x86_64/v8	ok	linux/amd64/v8
+parse	windows/ppc64le	ok	windows/ppc64le
+parse	windows/i386	ok	windows/386
+parse	wasip1/AMD64	ok	wasip1/amd64
+parse	macos/arm	ok	darwin/arm/v7
+parse	macos/s390x/v8	ok	darwin/s390x/v8
+parse	macos/ppc64le	ok	darwin/ppc64le
+parse	windows/aarch64/v9	ok	windows/arm64/v9
+parse	lnux/ppc64le	ok	lnux/ppc64le
+parse	lnux/ppc64le/v1	ok	lnux/ppc64le/v1
+parse	linux/armhf/v8	ok	linux/arm/v7
+parse	windows/amd64	ok	windows/amd64
+parse	wasip1/386/7	ok	wasip1/386/7
+parse	wasip1/AMD64/v1	ok	wasip1/amd64
+parse	wasip1/arm64/v1	ok	wasip1/arm64/v1
+parse	Linux/riscv64/v8	ok	linux/riscv64/v8
+parse	freebsd/AMD64/v9	ok	freebsd/amd64/v9
+parse	freebsd/amd64	ok	freebsd/amd64
+parse	linux/amd64/v5	ok	linux/amd64/v5
+parse	lnux/s390x/v8.2	err
+parse	windows/aarch64/7	ok	windows/arm64/7
+parse	darwin/arm64/7	ok	darwin/arm64/7
+parse	wasip1/x86_64/v1	ok	wasip1/amd64
+parse	windows/x86_64/v8	ok	windows/amd64/v8
+parse	windows/ppc64le	ok	windows/ppc64le
+parse	Linux/386/v9	ok	linux/386/v9
+parse	lnux/386	ok	lnux/386
+parse	lnux/armhf/v8.2	err
+parse	wasip1/arm64/v8	ok	wasip1/arm64
+parse	windows/riscv64/v5	ok	windows/riscv64/v5
+parse	wasip1/s390x/v6	ok	wasip1/s390x/v6
+parse	wasip1/arm/v9	ok	wasip1/arm/v9
+parse	darwin/s390x/v7	ok	darwin/s390x/v7
+parse	macos/x86_64/v9	ok	darwin/amd64/v9
+parse	windows/i386/v5	ok	windows/386
+parse	wasip1/ppc64le/v8	ok	wasip1/ppc64le/v8
+parse	freebsd/arm64/v5	ok	freebsd/arm64/v5
+parse	lnux/amd64/v6	ok	lnux/amd64/v6
+parse	Linux/arm64	ok	linux/arm64
+parse	macos/AMD64/v5	ok	darwin/amd64/v5
+parse	lnux/aarch64	ok	lnux/arm64
+parse	freebsd/ppc64le/v6	ok	freebsd/ppc64le/v6
+parse	windows/arm64/v7	ok	windows/arm64/v7
+parse	Linux/arm64/v7	ok	linux/arm64/v7
+parse	lnux/s390x/7	ok	lnux/s390x/7
+parse	linux/arm/v7	ok	linux/arm/v7
+parse	wasip1/aarch64	ok	wasip1/arm64
+parse	windows/arm64/v5	ok	windows/arm64/v5
+parse	wasip1/ppc64le	ok	wasip1/ppc64le
+parse	freebsd/arm/v7	ok	freebsd/arm/v7
+parse	linux/AMD64	ok	linux/amd64
+parse	wasip1/x86_64/7	ok	wasip1/amd64/7
+parse	Linux/x86_64/v1	ok	linux/amd64
+parse	darwin/aarch64	ok	darwin/arm64
+parse	wasip1/amd64/v9	ok	wasip1/amd64/v9
+parse	freebsd/aarch64/7	ok	freebsd/arm64/7
+parse	wasip1/amd64	ok	wasip1/amd64
+parse	wasip1/386/v8	ok	wasip1/386/v8
+parse	linux/s390x/v8.2	err
+parse	linux/arm64/7	ok	linux/arm64/7
+parse	linux/amd64/v1	ok	linux/amd64
+parse	Linux/386/v8	ok	linux/386/v8
+parse	darwin/arm/v8.2	err
+parse	wasip1/386/v3	ok	wasip1/386/v3
+parse	freebsd/s390x/v6	ok	freebsd/s390x/v6
+parse	linux/armhf	ok	linux/arm/v7
+parse	darwin/i386/v8	ok	darwin/386
+parse	lnux/386/v7	ok	lnux/386/v7
+parse	Linux/x86_64/v7	ok	linux/amd64/v7
+parse	lnux/s390x	ok	lnux/s390x
+parse	freebsd/riscv64/v8.2	err
+parse	wasip1/riscv64/v7	ok	wasip1/riscv64/v7
+parse	darwin/aarch64/7	ok	darwin/arm64/7
+parse	freebsd/x86_64/v5	ok	freebsd/amd64/v5
+parse	Linux/x86_64/v1	ok	linux/amd64
+parse	linux/ppc64le/v6	ok	linux/ppc64le/v6
+parse	wasip1/i386/v3	ok	wasip1/386
+parse	Linux/armhf/7	ok	linux/arm/v7
+parse	wasip1/aarch64	ok	wasip1/arm64
+parse	linux/arm/v5	ok	linux/arm/v5
+parse	lnux/x86_64/7	ok	lnux/amd64/7
+parse	freebsd/s390x/v8.2	err
+parse	linux/arm/v3	ok	linux/arm/v3
+parse	freebsd/i386	ok	freebsd/386
+parse	wasip1/amd64/v8	ok	wasip1/amd64/v8
+parse	windows/aarch64/v8.2	err
+parse	wasip1/ppc64le/v1	ok	wasip1/ppc64le/v1
+parse	Linux/ppc64le/v3	ok	linux/ppc64le/v3
+parse	wasip1/386/v9	ok	wasip1/386/v9
+parse	freebsd/s390x/v7	ok	freebsd/s390x/v7
+parse	freebsd/arm64/v9	ok	freebsd/arm64/v9
+parse	freebsd/x86_64/v8.2	err
+parse	macos/amd64/v5	ok	darwin/amd64/v5
+parse	linux/s390x	ok	linux/s390x
+parse	wasip1/aarch64/7	ok	wasip1/arm64/7
+parse	Linux/armhf/v1	ok	linux/arm/v7
+parse	windows/s390x	ok	windows/s390x
+parse	macos/i386/v8.2	err
+parse	lnux/s390x	ok	lnux/s390x
+parse	wasip1/s390x/7	ok	wasip1/s390x/7
+parse	Linux/riscv64/v7	ok	linux/riscv64/v7
+parse	Linux/386/v3	ok	linux/386/v3
+parse	linux/aarch64/v3	ok	linux/arm64/v3
+parse	windows/amd64/v1	ok	windows/amd64
+parse	Linux/AMD64/v9	ok	linux/amd64/v9
+parse	windows/s390x/v5	ok	windows/s390x/v5
+parse	macos/amd64	ok	darwin/amd64
+parse	linux/riscv64/v3	ok	linux/riscv64/v3
+parse	darwin/armhf/7	ok	darwin/arm/v7
+parse	windows/s390x/v8	ok	windows/s390x/v8
+parse	windows/x86_64/v8.2	err
+parse	freebsd/AMD64/v8	ok	freebsd/amd64/v8
+parse	wasip1/x86_64/v8	ok	wasip1/amd64/v8
+parse	linux/x86_64/v1	ok	linux/amd64
+parse	freebsd/i386/v7	ok	freebsd/386
+parse	Linux/aarch64/v9	ok	linux/arm64/v9
+parse	Linux/x86_64/v9	ok	linux/amd64/v9
+parse	windows/armhf	ok	windows/arm/v7
+parse	Linux/arm	ok	linux/arm/v7
+parse	linux/ppc64le/v6	ok	linux/ppc64le/v6
+parse	macos/amd64/v1	ok	darwin/amd64
+parse	wasip1/AMD64/v6	ok	wasip1/amd64/v6
+parse	lnux/armhf/v7	ok	lnux/arm/v7
+parse	Linux/ppc64le/v7	ok	linux/ppc64le/v7
+parse	freebsd/arm	ok	freebsd/arm/v7
+parse	wasip1/ppc64le/v1	ok	wasip1/ppc64le/v1
+parse	darwin/riscv64/v5	ok	darwin/riscv64/v5
+parse	freebsd/x86_64/v8	ok	freebsd/amd64/v8
+parse	darwin/s390x/v3	ok	darwin/s390x/v3
+parse	Linux/arm64/v6	ok	linux/arm64/v6
+parse	darwin/armhf/7	ok	darwin/arm/v7
+parse	Linux/AMD64/7	ok	linux/amd64/7
+parse	linux/aarch64/v6	ok	linux/arm64/v6
+parse	windows/x86_64/v1	ok	windows/amd64
+parse	linux/riscv64/7	ok	linux/riscv64/7
+parse	macos/arm/v5	ok	darwin/arm/v5
+parse	Linux/ppc64le/v5	ok	linux/ppc64le/v5
+parse	Linux/aarch64/v3	ok	linux/arm64/v3
+parse	wasip1/arm64/v8	ok	wasip1/arm64
+parse	lnux/amd64/v9	ok	lnux/amd64/v9
+parse	wasip1/AMD64	ok	wasip1/amd64
+parse	Linux/armhf/v9	ok	linux/arm/v7
+parse	windows/s390x	ok	windows/s390x
+parse	linux/AMD64/v1	ok	linux/amd64
+parse	windows/i386	ok	windows/386
+parse	freebsd/riscv64/v8.2	err
+parse	lnux/aarch64/7	ok	lnux/arm64/7
+parse	wasip1/riscv64	ok	wasip1/riscv64
+parse	wasip1/arm64/v1	ok	wasip1/arm64/v1
+parse	linux/arm	ok	linux/arm/v7
+parse	lnux/AMD64/v9	ok	lnux/amd64/v9
+parse	macos/arm64/7	ok	darwin/arm64/7
+parse	darwin/x86_64/v8	ok	darwin/amd64/v8
+parse	freebsd/ppc64le/v7	ok	freebsd/ppc64le/v7
+parse	wasip1/riscv64/v3	ok	wasip1/riscv64/v3
+parse	lnux/arm/v8.2	err
+parse	macos/x86_64/v7	ok	darwin/amd64/v7
+parse	freebsd/386/v5	ok	freebsd/386/v5
+parse	freebsd/x86_64	ok	freebsd/amd64
+parse	windows/x86_64/v6	ok	windows/amd64/v6
+parse	macos/amd64/v5	ok	darwin/amd64/v5
+parse	Linux/armhf/7	ok	linux/arm/v7
+parse	freebsd/x86_64/v8.2	err
+parse	macos/amd64	ok	darwin/amd64
+parse	wasip1/aarch64/7	ok	wasip1/arm64/7
+parse	linux/arm/v3	ok	linux/arm/v3
+parse	windows/s390x/v8	ok	windows/s390x/v8
+parse	Linux/armhf	ok	linux/arm/v7
+parse	darwin/riscv64/v9	ok	darwin/riscv64/v9
+parse	windows/ppc64le/7	ok	windows/ppc64le/7
+parse	linux/386/v9	ok	linux/386/v9
+parse	wasip1/i386/v7	ok	wasip1/386
+parse	Linux/armhf	ok	linux/arm/v7
+parse	darwin/ppc64le/v3	ok	darwin/ppc64le/v3
+parse	freebsd/x86_64	ok	freebsd/amd64
+parse	wasip1/AMD64	ok	wasip1/amd64
+parse	lnux/AMD64	ok	lnux/amd64
+parse	windows/ppc64le/v8.2	err
+parse	Linux/riscv64/v8	ok	linux/riscv64/v8
+parse	macos/i386/v6	ok	darwin/386
+parse	wasip1/amd64	ok	wasip1/amd64
+parse	darwin/x86_64	ok	darwin/amd64
+parse	macos/AMD64	ok	darwin/amd64
+parse	lnux/aarch64/v7	ok	lnux/arm64/v7
+parse	wasip1/AMD64	ok	wasip1/amd64
+parse	Linux/x86_64	ok	linux/amd64
+parse	freebsd/x86_64/v6	ok	freebsd/amd64/v6
+parse	freebsd/amd64	ok	freebsd/amd64
+parse	macos/i386/v7	ok	darwin/386
+parse	linux/armhf	ok	linux/arm/v7
+parse	darwin/arm64/v8.2	err
+parse	wasip1/i386/7	ok	wasip1/386
+parse	linux/aarch64/v3	ok	linux/arm64/v3
+parse	Linux/armhf/v1	ok	linux/arm/v7
+parse	linux/x86_64	ok	linux/amd64
+parse	linux/386/v3	ok	linux/386/v3
+parse	Linux/amd64/v6	ok	linux/amd64/v6
+parse	linux/amd64	ok	linux/amd64
+parse	darwin/arm64/v7	ok	darwin/arm64/v7
+parse	freebsd/aarch64	ok	freebsd/arm64
+parse	linux/x86_64	ok	linux/amd64
+parse	Linux/386	ok	linux/386
+parse	wasip1/s390x	ok	wasip1/s390x
+parse	lnux/ppc64le/7	ok	lnux/ppc64le/7
+parse	wasip1/aarch64	ok	wasip1/arm64
+parse	freebsd/ppc64le/v9	ok	freebsd/ppc64le/v9
+parse	macos/aarch64	ok	darwin/arm64
+parse	windows/aarch64/v8	ok	windows/arm64
+parse	windows/AMD64/v5	ok	windows/amd64/v5
+parse	wasip1/i386	ok	wasip1/386
+parse	darwin/aarch64/v8.2	err
+parse	lnux/riscv64	ok	lnux/riscv64
+parse	Linux/armhf	ok	linux/arm/v7
+parse	freebsd/amd64/v7	ok	freebsd/amd64/v7
+parse	lnux/i386	ok	lnux/386
+parse	freebsd/s390x	ok	freebsd/s390x
+parse	Linux/amd64/v3	ok	linux/amd64/v3
+parse	Linux/arm64	ok	linux/arm64
+parse	lnux/arm64/7	ok	lnux/arm64/7
+parse	macos/x86_64/v8.2	err
+parse	freebsd/arm/v6	ok	freebsd/arm/v6
+parse	freebsd/AMD64	ok	freebsd/amd64
+parse	lnux/s390x/v5	ok	lnux/s390x/v5
+parse	macos/s390x/7	ok	darwin/s390x/7
+parse	linux/riscv64	ok	linux/riscv64
+parse	freebsd/arm64/v8.2	err
+parse	macos/amd64/v8	ok	darwin/amd64/v8
+parse	wasip1/i386	ok	wasip1/386
+parse	macos/arm64/7	ok	darwin/arm64/7
+parse	linux/x86_64/v1	ok	linux/amd64
+parse	Linux/AMD64/7	ok	linux/amd64/7
+parse	freebsd/i386/7	ok	freebsd/386
+parse	lnux/arm64/v7	ok	lnux/arm64/v7
+parse	freebsd/armhf/v8	ok	freebsd/arm/v7
+parse	freebsd/x86_64/v5	ok	freebsd/amd64/v5
+parse	windows/i386/v7	ok	windows/386
+parse	wasip1/x86_64/v9	ok	wasip1/amd64/v9
+parse	Linux/amd64/v9	ok	linux/amd64/v9
+parse	freebsd/armhf/v1	ok	freebsd/arm/v7
+parse	linux/s390x/v1	ok	linux/s390x/v1
+parse	freebsd/i386/v8	ok	freebsd/386
+parse	linux/AMD64	ok	linux/amd64
+parse	Linux/arm64/v6	ok	linux/arm64/v6
+parse	linux/i386/7	ok	linux/386
+parse	windows/riscv64	ok	windows/riscv64
+parse	Linux/ppc64le/v9	ok	linux/ppc64le/v9
+parse	freebsd/arm64/v7	ok	freebsd/arm64/v7
+parse	freebsd/aarch64	ok	freebsd/arm64
+parse	lnux/ppc64le/v1	ok	lnux/ppc64le/v1
+parse	Linux/armhf/v8	ok	linux/arm/v7
+parse	wasip1/riscv64/v8	ok	wasip1/riscv64/v8
+parse	lnux/armhf	ok	lnux/arm/v7
+parse	Linux/i386/7	ok	linux/386
+parse	macos/amd64	ok	darwin/amd64
+parse	linux/aarch64/v5	ok	linux/arm64/v5
+parse	windows/s390x/v6	ok	windows/s390x/v6
+parse	Linux/i386/v8.2	err
+parse	lnux/i386/v1	ok	lnux/386
+parse	Linux/arm/v3	ok	linux/arm/v3
+parse	linux/armhf	ok	linux/arm/v7
+parse	wasip1/AMD64/v8	ok	wasip1/amd64/v8
+parse	Linux/amd64/v1	ok	linux/amd64
+parse	darwin/amd64/v8	ok	darwin/amd64/v8
+parse	linux/arm64/v9	ok	linux/arm64/v9
+parse	wasip1/i386/v9	ok	wasip1/386
+parse	macos/i386/v5	ok	darwin/386
+parse	wasip1/AMD64	ok	wasip1/amd64
+parse	darwin/amd64	ok	darwin/amd64
+parse	lnux/amd64/v6	ok	lnux/amd64/v6
+parse	wasip1/AMD64/v3	ok	wasip1/amd64/v3
+parse	macos/aarch64/v1	ok	darwin/arm64/v1
+parse	windows/386/v1	ok	windows/386/v1
+parse	linux/riscv64/v8.2	err
+parse	darwin/arm64/v5	ok	darwin/arm64/v5
+parse	freebsd/riscv64/v5	ok	freebsd/riscv64/v5
+parse	windows/AMD64/7	ok	windows/amd64/7
+parse	lnux/386/v9	ok	lnux/386/v9
+parse	freebsd/arm/v8	ok	freebsd/arm/v8
+parse	wasip1/armhf	ok	wasip1/arm/v7
+parse	linux/arm/v1	ok	linux/arm/v1
+parse	lnux/s390x	ok	lnux/s390x
+parse	macos/arm	ok	darwin/arm/v7
+parse	lnux/armhf/v8.2	err
+parse	freebsd/arm64/v6	ok	freebsd/arm64/v6
+parse	wasip1/riscv64/v5	ok	wasip1/riscv64/v5
+parse	macos/amd64/v8	ok	darwin/amd64/v8
+parse	linux/x86_64/v8	ok	linux/amd64/v8
+parse	windows/arm	ok	windows/arm/v7
+parse	wasip1/aarch64/v1	ok	wasip1/arm64/v1
+parse	Linux/ppc64le/v8.2	err
+parse	linux/i386/v5	ok	linux/386
+parse	freebsd/amd64	ok	freebsd/amd64
+parse	Linux/AMD64/v6	ok	linux/amd64/v6
+parse	macos/riscv64/7	ok	darwin/riscv64/7
+parse	Linux/AMD64/7	ok	linux/amd64/7
+parse	macos/AMD64	ok	darwin/amd64
+parse	macos/arm64/v8	ok	darwin/arm64
+parse	freebsd/riscv64	ok	freebsd/riscv64
+parse	Linux/i386/v9	ok	linux/386
+parse	wasip1/riscv64	ok	wasip1/riscv64
+parse	macos/AMD64/v9	ok	darwin/amd64/v9
+parse	freebsd/amd64/v7	ok	freebsd/amd64/v7
+parse	darwin/arm/v9	ok	darwin/arm/v9
+parse	Linux/arm64/v8.2	err
+parse	linux/arm64/v5	ok	linux/arm64/v5
+parse	freebsd/arm64/v1	ok	freebsd/arm64/v1
+parse	wasip1/ppc64le	ok	wasip1/ppc64le
+parse	lnux/s390x/v6	ok	lnux/s390x/v6
+parse	freebsd/arm	ok	freebsd/arm/v7
+parse	Linux/x86_64/v8	ok	linux/amd64/v8
+parse	Linux/386/v8	ok	linux/386/v8
+parse	darwin/amd64/v8	ok	darwin/amd64/v8
+parse	lnux/arm64/v7	ok	lnux/arm64/v7
+parse	Linux/i386/v8.2	err
+parse	macos/AMD64/v8	ok	darwin/amd64/v8
+parse	macos/amd64/v9	ok	darwin/amd64/v9
+parse	freebsd/i386/v8.2	err
+parse	linux/x86_64/v6	ok	linux/amd64/v6
+parse	macos/arm64/v7	ok	darwin/arm64/v7
+parse	freebsd/AMD64/v9	ok	freebsd/amd64/v9
+parse	lnux/386/v6	ok	lnux/386/v6
+parse	freebsd/armhf	ok	freebsd/arm/v7
+parse	wasip1/x86_64/7	ok	wasip1/amd64/7
+parse	freebsd/i386/v9	ok	freebsd/386
+parse	darwin/ppc64le/v1	ok	darwin/ppc64le/v1
+parse	darwin/arm/v1	ok	darwin/arm/v1
+parse	macos/amd64	ok	darwin/amd64
+parse	linux/riscv64/v8	ok	linux/riscv64/v8
+parse	linux/ppc64le	ok	linux/ppc64le
+parse	macos/ppc64le/v8	ok	darwin/ppc64le/v8
+parse	windows/386/v5	ok	windows/386/v5
+parse	freebsd/ppc64le	ok	freebsd/ppc64le
+parse	lnux/x86_64/v8.2	err
+parse	Linux/armhf/v8.2	err
+parse	macos/arm64/v5	ok	darwin/arm64/v5
+parse	macos/x86_64/v6	ok	darwin/amd64/v6
+parse	macos/ppc64le/v6	ok	darwin/ppc64le/v6
+parse	wasip1/s390x/v9	ok	wasip1/s390x/v9
+parse	windows/386	ok	windows/386
+parse	macos/i386/v8.2	err
+parse	Linux/s390x/v9	ok	linux/s390x/v9
+parse	wasip1/amd64	ok	wasip1/amd64
+parse	windows/arm64/v1	ok	windows/arm64/v1
+parse	macos/x86_64/v9	ok	darwin/amd64/v9
+parse	lnux/arm/7	ok	lnux/arm/v7
+parse	darwin/386/v8.2	err
+parse	windows/AMD64/v6	ok	windows/amd64/v6
+parse	linux/i386	ok	linux/386
+parse	windows/amd64	ok	windows/amd64
+parse	windows/amd64/v8	ok	windows/amd64/v8
+parse	wasip1/x86_64/v7	ok	wasip1/amd64/v7
+parse	Linux/armhf/v1	ok	linux/arm/v7
+parse	lnux/i386/v7	ok	lnux/386
+parse	linux/arm64	ok	linux/arm64
+parse	lnux/386/v1	ok	lnux/386/v1
+parse	lnux/386	ok	lnux/386
+parse	macos/386	ok	darwin/386
+parse	freebsd/armhf/v3	ok	freebsd/arm/v7
+parse	linux/riscv64/v5	ok	linux/riscv64/v5
+parse	freebsd/i386	ok	freebsd/386
+parse	lnux/AMD64/v8.2	err
+parse	darwin/armhf/v8.2	err
+parse	macos/armhf/v1	ok	darwin/arm/v7
+parse	wasip1/arm/v5	ok	wasip1/arm/v5
+parse	darwin/x86_64/7	ok	darwin/amd64/7
+parse	Linux/arm64/v5	ok	linux/arm64/v5
+parse	windows/x86_64/v5	ok	windows/amd64/v5
+parse	lnux/AMD64	ok	lnux/amd64
+parse	macos/AMD64/v5	ok	darwin/amd64/v5
+parse	wasip1/s390x/v8	ok	wasip1/s390x/v8
+parse	linux/amd64/v7	ok	linux/amd64/v7
+parse	Linux/386/v9	ok	linux/386/v9
+parse	macos/aarch64/v8	ok	darwin/arm64
+parse	windows/aarch64/v6	ok	windows/arm64/v6
+parse	lnux/arm/v6	ok	lnux/arm/v6
+parse	windows/aarch64/v7	ok	windows/arm64/v7
+parse	Linux/386	ok	linux/386
+parse	wasip1/AMD64	ok	wasip1/amd64
+parse	darwin/ppc64le	ok	darwin/ppc64le
+parse	lnux/AMD64	ok	lnux/amd64
+parse	wasip1/riscv64	ok	wasip1/riscv64
+parse	linux/arm64	ok	linux/arm64
+parse	windows/arm/v5	ok	windows/arm/v5
+parse	lnux/s390x/7	ok	lnux/s390x/7
+parse	wasip1/x86_64/v9	ok	wasip1/amd64/v9
+parse	wasip1/aarch64/v9	ok	wasip1/arm64/v9
+parse	lnux/arm64/v3	ok	lnux/arm64/v3
+parse	darwin/arm	ok	darwin/arm/v7
+parse	linux/AMD64/v9	ok	linux/amd64/v9
+parse	lnux/armhf/7	ok	lnux/arm/v7
+parse	lnux/x86_64	ok	lnux/amd64
+parse	linux/386/v5	ok	linux/386/v5
+parse	macos/AMD64/v8.2	err
+parse	linux/riscv64/7	ok	linux/riscv64/7
+parse	windows/s390x/v8	ok	windows/s390x/v8
+parse	linux/aarch64	ok	linux/arm64
+parse	freebsd/aarch64	ok	freebsd/arm64
+parse	lnux/ppc64le/v8	ok	lnux/ppc64le/v8
+parse	macos/AMD64/v9	ok	darwin/amd64/v9
+parse	windows/AMD64/v6	ok	windows/amd64/v6
+parse	darwin/AMD64	ok	darwin/amd64
+parse	linux/armhf/v7	ok	linux/arm/v7
+parse	linux/amd64/v5	ok	linux/amd64/v5
+parse	macos/aarch64/v1	ok	darwin/arm64/v1
+parse	Linux/ppc64le/v9	ok	linux/ppc64le/v9
+parse	wasip1/386/v7	ok	wasip1/386/v7
+parse	linux/AMD64/v3	ok	linux/amd64/v3
+parse	freebsd/386/v7	ok	freebsd/386/v7
+parse	darwin/aarch64	ok	darwin/arm64
+parse	Linux/aarch64	ok	linux/arm64
+parse	freebsd/x86_64/v9	ok	freebsd/amd64/v9
+parse	linux/arm64	ok	linux/arm64
+parse	macos/aarch64/v8	ok	darwin/arm64
+parse	macos/riscv64/v7	ok	darwin/riscv64/v7
+parse	windows/x86_64/v9	ok	windows/amd64/v9
+parse	Linux/ppc64le/v8	ok	linux/ppc64le/v8
+parse	windows/arm/v3	ok	windows/arm/v3
+parse	lnux/AMD64	ok	lnux/amd64
+parse	wasip1/s390x	ok	wasip1/s390x
+parse	windows/386/v8	ok	windows/386/v8
+parse	darwin/arm64	ok	darwin/arm64
+parse	windows/AMD64/v9	ok	windows/amd64/v9
+parse	windows/arm64/v5	ok	windows/arm64/v5
+parse	wasip1/x86_64/v8	ok	wasip1/amd64/v8
+parse	darwin/ppc64le/v9	ok	darwin/ppc64le/v9
+parse	Linux/s390x/v6	ok	linux/s390x/v6
+parse	lnux/s390x/v1	ok	lnux/s390x/v1
+parse	Linux/arm/v8	ok	linux/arm/v8
+parse	linux/ppc64le/v9	ok	linux/ppc64le/v9
+parse	windows/arm64	ok	windows/arm64
+parse	wasip1/riscv64/v1	ok	wasip1/riscv64/v1
+parse	macos/aarch64/v7	ok	darwin/arm64/v7
+parse	Linux/s390x/v1	ok	linux/s390x/v1
+parse	windows/riscv64	ok	windows/riscv64
+parse	lnux/arm64	ok	lnux/arm64

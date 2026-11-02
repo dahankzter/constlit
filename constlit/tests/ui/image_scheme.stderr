@@ -1,0 +1,5 @@
+error: remove the "https://": "ghcr.io/org/app"
+ --> tests/ui/image_scheme.rs:2:35
+  |
+2 |     let _ = constlit::oci::image!("https://ghcr.io/org/app");
+  |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^

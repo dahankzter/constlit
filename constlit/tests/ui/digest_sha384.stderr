@@ -1,0 +1,5 @@
+error: unsupported algorithm "sha384"; OCI images use "sha256" or "sha512"
+ --> tests/ui/digest_sha384.rs:2:36
+  |
+2 | ...ci::digest!("sha384:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
