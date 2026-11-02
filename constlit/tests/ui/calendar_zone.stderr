@@ -1,0 +1,5 @@
+error: calendar! takes "UTC" only; for a time zone, call next_after with a zoned date-time
+ --> tests/ui/calendar_zone.rs:2:42
+  |
+2 |     let _ = constlit::systemd::calendar!("Wed 12:00 Europe/Stockholm");
+  |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

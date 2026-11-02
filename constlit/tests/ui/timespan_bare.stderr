@@ -1,0 +1,5 @@
+error: missing unit after 30; write e.g. "30s" or "30min"
+ --> tests/ui/timespan_bare.rs:2:42
+  |
+2 |     let _ = constlit::systemd::timespan!("30");
+  |                                          ^^^^

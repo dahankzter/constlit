@@ -25,6 +25,9 @@ mod selector;
 mod signal;
 mod size;
 mod suggest;
+mod systemd_calendar;
+mod systemd_timespan;
+mod systemd_unit;
 mod ts;
 mod version;
 mod version_req;
@@ -361,6 +364,46 @@ pub fn linux_dev(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     input::expand(input.into(), "\"8:0\"", |s| {
         let (major, minor) = linux_misc::parse_dev(s)?;
         Ok(quote!(::constlit::linux::DevNum::__new_unchecked(#major, #minor)))
+    })
+    .into()
+}
+
+/// A systemd time span literal as a `core::time::Duration` constant. Use it as
+/// `constlit::systemd::timespan!`.
+#[proc_macro]
+pub fn systemd_timespan(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"5min 30s\"", |s| {
+        let (secs, nanos) = systemd_timespan::parse_timespan(s)?;
+        Ok(quote!(::core::time::Duration::new(#secs, #nanos)))
+    })
+    .into()
+}
+
+/// A systemd unit name literal, checked, as a `&'static str`. Use it as
+/// `constlit::systemd::unit!`.
+#[proc_macro]
+pub fn systemd_unit(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"nginx.service\"", |s| {
+        systemd_unit::check_unit(s)?;
+        Ok(quote!(#s))
+    })
+    .into()
+}
+
+/// A systemd calendar expression literal as a `constlit::systemd::CalendarSpec`
+/// constant. Use it as `constlit::systemd::calendar!`.
+#[proc_macro]
+pub fn systemd_calendar(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"Mon..Fri 09:00\"", |s| {
+        let c = systemd_calendar::parse_calendar(s)?;
+        let [y0, y1, y2, y3] = c.years;
+        let (weekdays, months, days, from_end) = (c.weekdays, c.months, c.days, c.from_end);
+        let (hours, minutes, seconds, utc, normalized) =
+            (c.hours, c.minutes, c.seconds, c.utc, c.normalized);
+        Ok(quote!(::constlit::systemd::CalendarSpec::__new_unchecked(
+            #weekdays, [#y0, #y1, #y2, #y3], #months, #days, #from_end,
+            #hours, #minutes, #seconds, #utc, #normalized
+        )))
     })
     .into()
 }

@@ -1,0 +1,5 @@
+error: unknown unit type ".servcie"; did you mean ".service"?
+ --> tests/ui/unit_type.rs:2:38
+  |
+2 |     let _ = constlit::systemd::unit!("nginx.servcie");
+  |                                      ^^^^^^^^^^^^^^^

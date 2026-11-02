@@ -92,6 +92,7 @@ mod mac;
 mod media_type;
 pub mod oci;
 mod size;
+pub mod systemd;
 mod table;
 mod time_of_day;
 mod timestamp;
