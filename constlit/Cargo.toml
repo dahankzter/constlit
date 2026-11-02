@@ -1,6 +1,6 @@
 [package]
 name = "constlit"
-description = "Compile-time checked literals: \"1h30m\", \"64 KiB\", \"10.0.0.0/8\", \"*/5 * * * *\", \"2026-10-30 14:00 Europe/Stockholm\" become typed constants, with errors that suggest the fix."
+description = "Compile-time checked literals: \"1h30m\", \"64 KiB\", \"10.0.0.0/8\", \"2026-10-30 14:00 Europe/Stockholm\", \"512Mi\", \"ghcr.io/org/app:1.2\", \"rwxr-xr-x\" become typed constants, with errors that suggest the fix."
 documentation = "https://docs.rs/constlit"
 readme = "../README.md"
 version.workspace = true
@@ -8,7 +8,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-keywords = ["literal", "const", "compile-time", "duration", "timezone"]
+keywords = ["literal", "const", "compile-time", "kubernetes", "timezone"]
 categories = ["no-std", "no-std::no-alloc", "date-and-time", "network-programming", "rust-patterns"]
 
 [features]
@@ -33,7 +33,7 @@ k8s-openapi = ["dep:k8s-openapi"]
 __k8s-openapi-latest = ["k8s-openapi/latest"]
 
 [dependencies]
-constlit-macros = { path = "../constlit-macros", version = "=0.1.0" }
+constlit-macros = { path = "../constlit-macros", version = "=0.2.0" }
 ipnet = { version = "2", optional = true, default-features = false }
 semver = { version = "1", optional = true, default-features = false }
 mime = { version = "0.3", optional = true }

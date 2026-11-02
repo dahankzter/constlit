@@ -35,6 +35,18 @@
 //! | [`date!`] | [`Date`] |
 //! | [`time!`] | [`TimeOfDay`] |
 //! | [`ts!`] | [`Timestamp`], or [`ZonedTimestamp`] for a named zone |
+//! | [`mac!`] | [`MacAddr`] |
+//!
+//! Values from particular systems live in modules, so their type names stay clear of
+//! the ecosystem types you convert them to:
+//!
+//! - [`unix`]: file modes ([`unix::mode!`]) and signals numbered for the build target
+//!   ([`unix::signal!`]).
+//! - [`linux`]: capabilities ([`linux::cap!`], [`linux::caps!`]).
+//! - [`k8s`]: resource quantities ([`k8s::quantity!`], [`k8s::cpu!`], [`k8s::mem!`]),
+//!   object names, labels and label selectors.
+//! - [`oci`]: image references ([`oci::image!`]), digests ([`oci::digest!`]) and
+//!   platforms ([`oci::platform!`]).
 //!
 //! Literals are strict: one that could mean two things, like `"64 kb"` (1000 or 1024
 //! bytes?) or a local time that happens twice when the clocks go back, is an error
@@ -44,7 +56,7 @@
 //!
 //! - `tz` (default): named time zones in [`ts!`], resolved at compile time from the IANA
 //!   database bundled with jiff. Only the proc macro uses jiff.
-//! - `std`: [`Timestamp::to_system_time`].
+//! - `std`: `Timestamp::to_system_time`, and `unix::Mode::to_permissions` on unix.
 //! - `jiff`, `chrono`: `CronSpec::next_after` for those crates' date-times, and
 //!   `to_jiff` / `to_chrono` conversions of the date and time types.
 //! - `ipnet`, `semver`, `mime`: conversions to those crates' types (`mime` needs `std`).

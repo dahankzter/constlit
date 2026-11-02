@@ -7,6 +7,8 @@
 Readable string literals that become typed constants at compile time.
 
 ```rust
+use constlit::k8s::{self, Quantity};
+use constlit::oci::{self, ImageRef};
 use constlit::{ByteSize, Timestamp, ZonedTimestamp, dur, ip, size, ts};
 use std::net::Ipv4Addr;
 use std::time::Duration;
@@ -16,10 +18,14 @@ const LIMIT: ByteSize = size!("64 KiB");
 const DNS: Ipv4Addr = ip!("10.0.0.53");
 const DEADLINE: Timestamp = ts!("2026-10-30T14:00Z");
 const LAUNCH: ZonedTimestamp = ts!("2026-10-30 14:00 Europe/Stockholm");
+const MEMORY: Quantity = k8s::mem!("512Mi");
+const IMAGE: ImageRef = oci::image!("nginx:1.27");
 
 assert_eq!(TIMEOUT.as_secs(), 5400);
 assert_eq!(LIMIT.bytes(), 65_536);
 assert_eq!(LAUNCH.unix_seconds(), DEADLINE.unix_seconds() - 3600);
+assert_eq!(MEMORY.value(), 512 << 20);
+assert_eq!(IMAGE.canonical(), "docker.io/library/nginx:1.27");
 ```
 
 Each macro parses its literal while your crate compiles:
@@ -30,7 +36,7 @@ Each macro parses its literal while your crate compiles:
   parsed, allocated or looked up when the program runs, not even time zones.
 - **Strict.** A literal that could mean two things is an error, never a guess: `"64 kb"`
   (1000 or 1024?), `"30"` (seconds?), a local time that happens twice when the clocks
-  go back.
+  go back, a Kubernetes memory limit of `"500m"` (half a byte).
 - **`no_std`.** The runtime crate needs no allocator and has no required dependencies.
 
 ## Installation
@@ -48,6 +54,7 @@ cargo add constlit
 | `ip!` | `ip!("10.0.0.1")`, `ip!("::1")` | `Ipv4Addr` or `Ipv6Addr`, by literal |
 | `addr!` | `addr!("0.0.0.0:8080")`, `addr!("[::1]:443")` | `SocketAddrV4` or `SocketAddrV6`, by literal |
 | `cidr!` | `cidr!("10.0.0.0/8")` | `constlit::Ipv4Cidr` or `Ipv6Cidr`, by literal |
+| `mac!` | `mac!("00:1a:2b:3c:4d:5e")` | `constlit::MacAddr` |
 | `version!` | `version!("1.2.3-beta.1+build.5")` | `constlit::Version` |
 | `mime!` | `mime!("text/html; charset=utf-8")` | `constlit::MediaType` |
 | `cron!` | `cron!("*/5 9-17 * * MON-FRI")` | `constlit::CronSpec` |
@@ -55,33 +62,70 @@ cargo add constlit
 | `time!` | `time!("14:30:05.250")` | `constlit::TimeOfDay` |
 | `ts!` | `ts!("2026-10-30T14:00+01:00")`, `ts!("2026-10-30 14:00 Europe/Stockholm")` | `constlit::Timestamp` or `ZonedTimestamp`, by literal |
 
+Values from particular systems live in modules: `constlit::unix`, `constlit::linux`,
+`constlit::k8s` and `constlit::oci`. That keeps their type names (`Quantity`,
+`Signal`, `Platform`, ...) clear of the ecosystem types you convert them to.
+
+### Unix and Linux
+
+| macro | example | value |
+|---|---|---|
+| `unix::mode!` | `mode!("0755")`, `mode!("rwxr-xr-x")`, `mode!("u=rwx,go=rx")` | `unix::Mode` |
+| `unix::signal!` | `signal!("SIGTERM")`, `signal!("TERM")` | `unix::Signal`, numbered for the build target |
+| `linux::cap!` | `cap!("CAP_NET_ADMIN")`, `cap!("NET_ADMIN")` | `linux::Capability` |
+| `linux::caps!` | `caps!("CAP_NET_ADMIN, CAP_SYS_TIME")` | `linux::CapSet` |
+
+### Kubernetes
+
+| macro | example | value |
+|---|---|---|
+| `k8s::quantity!` | `quantity!("1.5Gi")`, `quantity!("1e3")` | `k8s::Quantity` |
+| `k8s::cpu!` | `cpu!("500m")` | `k8s::Quantity` |
+| `k8s::mem!` | `mem!("512Mi")` | `k8s::Quantity` |
+| `k8s::dns_label!`, `dns1035_label!`, `dns_subdomain!` | `dns_label!("kube-system")` | `&'static str` |
+| `k8s::label_key!`, `label_value!` | `label_key!("app.kubernetes.io/name")` | `&'static str` |
+| `k8s::selector!` | `selector!("app=web,env in (prod,staging)")` | `&'static str` |
+
+### Containers
+
+| macro | example | value |
+|---|---|---|
+| `oci::image!` | `image!("nginx")`, `image!("ghcr.io/org/app:1.2")` | `oci::ImageRef` |
+| `oci::digest!` | `digest!("sha256:…")` | `oci::Digest` |
+| `oci::platform!` | `platform!("linux/arm64/v8")` | `oci::Platform` |
+
 Every macro works in `const` and `static` items. The crate's own types keep their
 fields private, so every value is valid: there is no February 30 and no CIDR with
-host bits set. Their accessors are `const fn`, and they have checked constructors
-(`Date::new`, `Ipv4Cidr::new`, `Version::new`, ...) for values computed at run time.
+host bits set. Their accessors are `const fn`, and most have checked constructors
+(`Date::new`, `Ipv4Cidr::new`, `Mode::new`, ...) for values computed at run time.
 
 ## Errors
 
 The error sits on the literal and names the fix:
 
 ```text
-error: `kb` is ambiguous: write `KiB` (1024 bytes) or `KB` (1000 bytes)
- --> src/main.rs:2:29
+error: "500m" is 0.5 bytes ("m" means milli); did you mean "500Mi" or "500M"?
+ --> src/main.rs:2:33
   |
-2 |     let _ = constlit::size!("64 kb");
-  |                             ^^^^^^^
+2 |     let _ = constlit::k8s::mem!("500m");
+  |                                 ^^^^^^
 ```
 
 A few more:
 
 | literal | error |
 |---|---|
+| `size!("64 kb")` | ``kb` is ambiguous: write `KiB` (1024 bytes) or `KB` (1000 bytes)`` |
 | `dur!("30")` | ``missing unit after 30; write e.g. "30s" or "30ms"`` |
 | `cidr!("10.1.2.3/8")` | ``host bits are set in 10.1.2.3/8; did you mean "10.0.0.0/8"?`` |
 | `version!("v1.2.3")` | ``remove the leading "v"; write "1.2.3"`` |
 | `date!("2026-02-30")` | ``day 30 is out of range: February 2026 has 28 days`` |
-| `time!("2:30 PM")` | ``use the 24-hour clock: "14:30"`` |
 | `ts!("2026-10-25 02:30 Europe/Stockholm")` | ``2026-10-25 02:30 happens twice in Europe/Stockholm; write "2026-10-25 02:30+02:00 Europe/Stockholm" (the first) or "2026-10-25 02:30+01:00 Europe/Stockholm" (the second)`` |
+| `unix::mode!("u+x")` | ``"u+x" changes a mode; write an absolute mode like "u=rwx,go=rx" or "0755"`` |
+| `unix::signal!("15")` | ``signal numbers differ between platforms; write the name, e.g. "SIGTERM" (15 on most Linux targets)`` |
+| `k8s::dns_label!("My-App")` | ``names must be lower case; write "my-app"`` |
+| `oci::image!("MyOrg/app")` | ``"MyOrg" would be read as a registry host; Docker Hub names are lower case: "myorg/app"`` |
+| `oci::platform!("linux/x86_64")` | ``"x86_64" is not a Go architecture name; write "linux/amd64"`` |
 
 ## The rules
 
@@ -96,6 +140,7 @@ A few more:
 - **`ip!`, `addr!`, `cidr!`:** standard textual forms. IPv6 in `addr!` needs brackets.
   Zone suffixes (`%eth0`), hostnames and CIDRs with host bits set are errors. Use
   `.into()` for `IpAddr`, `SocketAddr` or `Cidr`.
+- **`mac!`:** six two-digit hex bytes with one separator, `:` or `-`, in either case.
 - **`version!`:** [SemVer 2.0.0](https://semver.org) exactly, so `"v1.2.3"` and `"1.2"`
   are errors. `Ord`, `Eq` and `Hash` follow SemVer precedence and ignore build metadata.
 - **`mime!`:** RFC 6838 type and subtype, RFC 9110 parameters (tokens or quoted
@@ -110,6 +155,28 @@ A few more:
   24-hour clock. `24:00`, leap seconds and AM/PM are errors.
 - **`ts!`:** a date, `T` or one space, a time, and then `Z`, an offset (`+01:00`,
   `-0530`), or a space and an IANA zone name. A timestamp without a zone is an error.
+- **`unix::mode!`:** the permission bits as 3 or 4 octal digits, the 9-character `ls`
+  form, or absolute symbolic clauses where unnamed classes get no bits (`"u=rwx"` is
+  `0700`). Relative modes (`"u+x"`), Rust's `"0o755"` and an `ls` line with a file type
+  are errors. `Display` is octal; `{:#}` is the `ls` form.
+- **`unix::signal!`:** names with or without `SIG`, upper case, numbered for the build
+  target: Linux (generic, mips and sparc numberings), macOS, iOS and the BSDs. A signal
+  the target lacks is a compile error naming the platform; numbers and real-time
+  signals are errors.
+- **`linux::cap!`, `caps!`:** `CAP_X` or `X`, numbers 0-40; `"ALL"` and duplicates are
+  errors.
+- **`k8s::quantity!`, `cpu!`, `mem!`:** Kubernetes' quantity grammar, kept exactly in
+  milli-units. Where Kubernetes would round or cap (finer than `1m`, beyond 2^63 - 1
+  units) it is an error. `cpu!` rejects negatives and binary suffixes; `mem!` wants
+  whole bytes and rejects `n`, `u` and `m`. `Display` keeps the literal as written.
+- **`k8s` names, labels and `selector!`:** Kubernetes' own validation rules and
+  label-selector syntax. An empty selector, which matches everything, is an error.
+- **`oci::image!`:** Docker's reference grammar and normalization: `"nginx"` is
+  `docker.io/library/nginx:latest`. Upper case in a repository, and a capitalized first
+  part Docker would read as a host (`"MyOrg/app"`), are errors.
+- **`oci::digest!`:** `sha256` or `sha512` with lower-case hex, decoded at compile time.
+- **`oci::platform!`:** Go's `GOOS`/`GOARCH` names and the OCI variants; common other
+  names (`x86_64`, `aarch64`, `armhf`, `macos`) are errors that suggest the Go name.
 
 ## Time zones
 
@@ -157,17 +224,20 @@ On zoned date-times it follows Vixie cron through daylight-saving changes:
 | feature | default | adds |
 |---|---|---|
 | `tz` | yes | named time zones in `ts!` (pulls jiff into the proc macro only) |
-| `std` | | `Timestamp::to_system_time` |
+| `std` | | `Timestamp::to_system_time`, `unix::Mode::to_permissions` (on unix) |
 | `jiff` | | `CronSpec::next_after` for jiff date-times; `to_jiff` on `Date`, `TimeOfDay` and `Timestamp`; `ZonedTimestamp::to_jiff_zoned` |
 | `chrono` | | `CronSpec::next_after` for chrono date-times; `to_chrono` on `Date`, `TimeOfDay` and `Timestamp` |
 | `ipnet` | | `From` the CIDR types into `ipnet::Ipv4Net` and `Ipv6Net` |
 | `semver` | | `Version::to_semver` |
 | `mime` | | `MediaType::to_mime` (needs `std`) |
+| `k8s-openapi` | | `From<k8s::Quantity>` for k8s-openapi's `Quantity`; your crate picks the Kubernetes version through k8s-openapi's `v1_*` features, as k8s-openapi requires |
 
 ## Platforms
 
 `no_std` with no allocation; it builds for bare-metal targets such as
-`thumbv7m-none-eabi`. The `mime` and `std` features need `std`. No `unsafe`.
+`thumbv7m-none-eabi`. The `mime`, `std` and `k8s-openapi` features need `std`. No
+`unsafe`. `unix::signal!` needs a Linux, Android, macOS, iOS or BSD target; every other
+macro works everywhere.
 
 ## Minimum supported Rust version
 
@@ -190,3 +260,8 @@ licensed as above, without any additional terms or conditions.
   [IANA time-zone database](https://www.iana.org/time-zones).
 - Cron semantics follow Paul Vixie's cron; [croner](https://crates.io/crates/croner)
   and [chrono-tz](https://crates.io/crates/chrono-tz) serve as test oracles.
+- The Kubernetes and container macros are tested against the Go code that defines those
+  formats: Kubernetes' `apimachinery`, Docker's `distribution/reference`, `go-digest`
+  and containerd's `platforms`, through fixtures generated by a small Go program in the
+  repository. Signal numbers are checked against the `libc` crate and capabilities
+  against the `caps` crate.
