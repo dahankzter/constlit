@@ -256,7 +256,7 @@ fn twelve_hour(s: &str) -> Option<Option<String>> {
     let fixed = match hour.parse::<u8>() {
         Ok(h @ 1..=12) if all_digits(hour) && hour.len() <= 2 => {
             let h = h % 12 + if pm { 12 } else { 0 };
-            Some(format!("{h:02}:{rest}"))
+            Some(format!("{h:02}:{rest}")).filter(|fixed| parse_time(fixed).is_ok())
         }
         _ => None,
     };
@@ -410,6 +410,8 @@ mod tests {
             ("14:30.5", "a fraction needs seconds: write HH:MM:SS.F"),
             ("2:30 PM", r#"use the 24-hour clock: "14:30""#),
             ("12:15am", r#"use the 24-hour clock: "00:15""#),
+            ("2:xx PM", r#"use the 24-hour clock HH:MM, like "14:30""#),
+            ("2:75 PM", r#"use the 24-hour clock HH:MM, like "14:30""#),
             ("14h30", r#"use the 24-hour clock HH:MM, like "14:30""#),
             (
                 "14:30Z",

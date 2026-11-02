@@ -84,6 +84,9 @@ pub fn parse_ts(s: &str) -> Result<Ts, String> {
         }
         _ => (None, tail),
     };
+    if tail.starts_with('Z') && after.starts_with(['[', ' ']) {
+        return Err(r#"write an offset like "+01:00" before a zone name, or remove "Z""#.into());
+    }
     if let Some(name) = after.strip_prefix('[') {
         let name = name.strip_suffix(']').unwrap_or(name);
         return Err(format!(
@@ -103,9 +106,6 @@ pub fn parse_ts(s: &str) -> Result<Ts, String> {
             offset,
         });
     };
-    if tail.starts_with('Z') {
-        return Err(r#"write an offset like "+01:00" before a zone name, or remove "Z""#.into());
-    }
     if zone == "Z" {
         return Err(format!(
             r#"remove the space before "Z": "{}Z""#,
@@ -317,7 +317,15 @@ mod tests {
                 "2026-10-30 14:00 Z",
                 r#"remove the space before "Z": "2026-10-30 14:00Z""#,
             ),
+            (
+                "2026-10-30T14:00Z[Europe/Paris]",
+                r#"write an offset like "+01:00" before a zone name, or remove "Z""#,
+            ),
             // The date and time parts report their own errors.
+            (
+                "1900-02-29T12:00Z",
+                "day 29 is out of range: February 1900 has 28 days",
+            ),
             (
                 "2026-02-30T14:00Z",
                 "day 30 is out of range: February 2026 has 28 days",

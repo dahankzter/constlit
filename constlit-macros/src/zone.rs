@@ -1,7 +1,7 @@
 //! Named time zones for `ts!`, resolved at compile time from jiff's bundled database.
 
 use jiff::civil::DateTime;
-use jiff::tz::{AmbiguousOffset, Offset, TimeZone, TimeZoneDatabase};
+use jiff::tz::{AmbiguousOffset, TimeZone, TimeZoneDatabase};
 
 /// The version of the bundled IANA time-zone database.
 pub fn tzdb_version() -> &'static str {
@@ -43,20 +43,24 @@ pub fn resolve(
         }
         (AmbiguousOffset::Gap { before, after }, _) => {
             // The transition is the first one after the local time read with the later offset.
-            let probe = after.to_timestamp(civil).map_err(|e| e.to_string())?;
+            let probe = after
+                .to_timestamp(civil)
+                .map_err(|_| too_late(written, zone))?;
             let at = tz
                 .following(probe)
                 .next()
                 .map(|t| t.timestamp())
                 .ok_or("no transition after a gap")?;
-            let local = |offset: Offset| {
-                let t = offset.to_datetime(at);
-                format!("{:02}:{:02}", t.hour(), t.minute())
+            let (from, to) = (before.to_datetime(at), after.to_datetime(at));
+            // Show the dates too when the jump crosses midnight.
+            let local = |t: DateTime| match from.date() == to.date() {
+                true => format!("{:02}:{:02}", t.hour(), t.minute()),
+                false => format!("{} {:02}:{:02}", t.date(), t.hour(), t.minute()),
             };
             return Err(format!(
                 "{written} doesn't exist in {zone}: the clocks jump from {} to {} ({} to {})",
-                local(before),
-                local(after),
+                local(from),
+                local(to),
                 show(before.seconds()),
                 show(after.seconds())
             ));
@@ -81,7 +85,9 @@ pub fn resolve(
             }
         }
     };
-    let instant = chosen.to_timestamp(civil).map_err(|e| e.to_string())?;
+    let instant = chosen
+        .to_timestamp(civil)
+        .map_err(|_| too_late(written, zone))?;
     let nanos = instant.subsec_nanosecond();
     Ok((
         instant.as_second() - i64::from(nanos < 0),
@@ -119,6 +125,14 @@ fn lookup(zone: &str) -> Result<TimeZone, String> {
         }
         _ => format!(r#"unknown time zone "{zone}""#),
     })
+}
+
+/// jiff's timestamps, and so named zones, end about a day before year 9999 does;
+/// a fixed offset reaches the end of 9999.
+fn too_late(written: &str, zone: &str) -> String {
+    format!(
+        r#"{written} is too late for a named zone, which ends at 9999-12-30 22:00 UTC; write an offset instead of "{zone}""#
+    )
 }
 
 /// `±HH:MM`, or `±HH:MM:SS` when the offset has seconds.
@@ -229,6 +243,20 @@ mod tests {
                 "2026-10-04 02:15 Australia/Lord_Howe",
                 "2026-10-04 02:15 doesn't exist in Australia/Lord_Howe: the clocks jump from 02:00 to 02:30 (+10:30 to +11:00)",
             ),
+            // A whole skipped day shows the dates.
+            (
+                "2011-12-30 12:00 Pacific/Apia",
+                "2011-12-30 12:00 doesn't exist in Pacific/Apia: the clocks jump from 2011-12-30 00:00 to 2011-12-31 00:00 (-10:00 to +14:00)",
+            ),
+            // jiff's timestamps end at 9999-12-30T22:00Z.
+            (
+                "9999-12-31 12:00 Europe/Paris",
+                r#"9999-12-31 12:00 is too late for a named zone, which ends at 9999-12-30 22:00 UTC; write an offset instead of "Europe/Paris""#,
+            ),
+            (
+                "9999-12-31T00:00 UTC",
+                r#"9999-12-31T00:00 is too late for a named zone, which ends at 9999-12-30 22:00 UTC; write an offset instead of "UTC""#,
+            ),
             (
                 "2026-03-29 02:30+01:00 Europe/Stockholm",
                 "2026-03-29 02:30 doesn't exist in Europe/Stockholm: the clocks jump from 02:00 to 03:00 (+01:00 to +02:00)",
@@ -296,11 +324,32 @@ mod tests {
             .to_zoned(TimeZone::UTC)
             .unwrap()
             .timestamp();
-        let mut checked = 0;
+        let (mut checked, mut transitions, mut skipped) = (0, 0, 0);
         for name in ZONES {
             let tz = db.get(name).unwrap();
             let theirs: chrono_tz::Tz = name.parse().unwrap();
             for transition in tz.following(start).take_while(|t| t.timestamp() < end) {
+                // The two crates bundle their own copies of the tz database. Where
+                // the copies disagree about a transition, the data differs, not the
+                // resolver, so skip it; `skipped` below bounds how often.
+                let offset_at = |second: i64| {
+                    let utc = chrono::DateTime::from_timestamp(second, 0)
+                        .unwrap()
+                        .naive_utc();
+                    theirs
+                        .offset_from_utc_datetime(&utc)
+                        .fix()
+                        .local_minus_utc()
+                };
+                let at = transition.timestamp().as_second();
+                let previous = tz.to_offset(transition.timestamp() - Span::new().seconds(1));
+                if offset_at(at - 1) != previous.seconds()
+                    || offset_at(at) != transition.offset().seconds()
+                {
+                    skipped += 1;
+                    continue;
+                }
+                transitions += 1;
                 let local = transition.timestamp().to_zoned(tz.clone()).datetime();
                 for step in -6..=6 {
                     let dt = local.checked_add(Span::new().minutes(15 * step)).unwrap();
@@ -342,5 +391,10 @@ mod tests {
             }
         }
         assert!(checked > 5_000, "only {checked} cases");
+        assert!(
+            skipped * 20 < transitions,
+            "the databases disagree on {skipped} of {} transitions",
+            transitions + skipped
+        );
     }
 }
