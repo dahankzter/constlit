@@ -7,9 +7,12 @@ mod cron;
 #[path = "../../constlit/tests/support/cron_gen.rs"]
 mod cron_gen;
 mod datetime;
+mod docker_port;
 mod duration;
+mod errno;
 mod input;
 mod k8s_names;
+mod linux_misc;
 mod mac;
 mod media_type;
 mod mode;
@@ -280,6 +283,83 @@ pub fn oci_platform(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             None => quote!(::core::option::Option::None),
         };
         Ok(quote!(::constlit::oci::Platform::__new_unchecked(#os, #arch, #variant)))
+    })
+    .into()
+}
+
+/// A Docker port mapping literal as a `constlit::docker::PortMapping` constant. Use
+/// it as `constlit::docker::port!`.
+#[proc_macro]
+pub fn docker_port(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"8080:80\"", |s| {
+        let port = docker_port::parse_port(s)?;
+        let none = quote!(::core::option::Option::None);
+        let ip = match port.host_ip {
+            Some(std::net::IpAddr::V4(ip)) => {
+                let [a, b, c, d] = ip.octets();
+                quote!(::core::option::Option::Some(::core::net::IpAddr::V4(
+                    ::core::net::Ipv4Addr::new(#a, #b, #c, #d)
+                )))
+            }
+            Some(std::net::IpAddr::V6(ip)) => {
+                let [a, b, c, d, e, f, g, h] = ip.segments();
+                quote!(::core::option::Option::Some(::core::net::IpAddr::V6(
+                    ::core::net::Ipv6Addr::new(#a, #b, #c, #d, #e, #f, #g, #h)
+                )))
+            }
+            None => none.clone(),
+        };
+        let range = |(start, end): (u16, u16)| {
+            quote!(::constlit::docker::PortRange::__new_unchecked(#start, #end))
+        };
+        let host = match port.host {
+            Some(host) => {
+                let host = range(host);
+                quote!(::core::option::Option::Some(#host))
+            }
+            None => none,
+        };
+        let container = range(port.container);
+        let protocol = match port.protocol {
+            "udp" => quote!(::constlit::docker::Protocol::Udp),
+            "sctp" => quote!(::constlit::docker::Protocol::Sctp),
+            _ => quote!(::constlit::docker::Protocol::Tcp),
+        };
+        Ok(quote!(::constlit::docker::PortMapping::__new_unchecked(
+            #ip, #host, #container, #protocol
+        )))
+    })
+    .into()
+}
+
+/// An errno name literal as a `constlit::linux::Errno` constant, numbered for the
+/// build target. Use it as `constlit::linux::errno!`.
+#[proc_macro]
+pub fn linux_errno(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand_spanned(input.into(), "\"ENOENT\"", |s, span| {
+        Ok(errno::expand_errno(errno::parse_errno(s)?, span))
+    })
+    .into()
+}
+
+/// A Linux network interface name literal, checked, as a `&'static str`. Use it as
+/// `constlit::linux::ifname!`.
+#[proc_macro]
+pub fn linux_ifname(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"eth0\"", |s| {
+        linux_misc::check_ifname(s)?;
+        Ok(quote!(#s))
+    })
+    .into()
+}
+
+/// A Linux device number literal as a `constlit::linux::DevNum` constant. Use it as
+/// `constlit::linux::dev!`.
+#[proc_macro]
+pub fn linux_dev(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\"8:0\"", |s| {
+        let (major, minor) = linux_misc::parse_dev(s)?;
+        Ok(quote!(::constlit::linux::DevNum::__new_unchecked(#major, #minor)))
     })
     .into()
 }

@@ -1,0 +1,5 @@
+error: port 0 isn't a port; leave the host port out for any free port: "80"
+ --> tests/ui/port_zero.rs:2:37
+  |
+2 |     let _ = constlit::docker::port!("0:80");
+  |                                     ^^^^^^

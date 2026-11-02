@@ -13,14 +13,20 @@ macro_rules! same {
     };
 }
 
-#[cfg(any(
-    target_os = "linux",
-    target_os = "android",
-    target_vendor = "apple",
-    target_os = "freebsd",
-    target_os = "netbsd",
-    target_os = "openbsd",
-    target_os = "dragonfly"
+// libc 0.2.191 gives mips64 Linux the generic signal numbers (its glibc sysdeps
+// list names mips twice and never mips64), so libc is no oracle there; constlit's
+// mips table follows the kernel and the signal_tables unit test pins it.
+#[cfg(all(
+    any(
+        target_os = "linux",
+        target_os = "android",
+        target_vendor = "apple",
+        target_os = "freebsd",
+        target_os = "netbsd",
+        target_os = "openbsd",
+        target_os = "dragonfly"
+    ),
+    not(any(target_arch = "mips64", target_arch = "mips64r6"))
 ))]
 mod checks {
     use super::*;

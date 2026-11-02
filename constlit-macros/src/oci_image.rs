@@ -28,6 +28,8 @@ pub fn parse_image(s: &str) -> Result<Image, String> {
     }
     if s.contains(char::is_whitespace) {
         let joined: String = s.split_whitespace().collect();
+        // Offer the joined reference only when it is valid; otherwise report its problem.
+        parse_image(&joined)?;
         return Err(format!(r#"remove the spaces: "{joined}""#));
     }
     if let Some((scheme, rest)) = s.split_once("://") {
@@ -441,6 +443,10 @@ mod tests {
             (
                 format!("a@b@sha256:{}", "ab".repeat(32)),
                 r#"a reference has at most one "@""#.into(),
+            ),
+            (
+                "Nginx :1".into(),
+                r#"repository names must be lower case; write "nginx:1""#.into(),
             ),
         ];
         for (input, message) in cases {

@@ -14,6 +14,8 @@ pub fn parse_mode(s: &str) -> Result<u32, String> {
     }
     if s.contains(char::is_whitespace) {
         let joined: String = s.split_whitespace().collect();
+        // Offer the joined mode only when it is valid; otherwise report its problem.
+        parse_mode(&joined)?;
         return Err(format!(r#"remove the spaces: "{joined}""#));
     }
     if let Some(rest) = s.strip_prefix("0o") {
@@ -334,6 +336,10 @@ mod tests {
             (
                 "=rwxr-xr-x",
                 r#"missing class before "="; write e.g. "a=r""#,
+            ),
+            (
+                "u+x, g=r",
+                r#""u+x" changes a mode; write an absolute mode like "u=rwx,go=rx" or "0755""#,
             ),
         ];
         for (input, message) in cases {

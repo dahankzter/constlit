@@ -1,0 +1,5 @@
+error: protocols are lower case: "8080:80/tcp"
+ --> tests/ui/port_upper_proto.rs:2:37
+  |
+2 |     let _ = constlit::docker::port!("8080:80/TCP");
+  |                                     ^^^^^^^^^^^^^

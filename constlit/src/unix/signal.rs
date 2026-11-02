@@ -8,7 +8,7 @@
 
 use core::fmt;
 
-type Table = [(&'static str, i32)];
+use crate::table::{Table, name_of, number_of};
 
 /// x86, x86_64, arm, aarch64, riscv, powerpc, s390x, loongarch and other Linux
 /// targets using the asm-generic numbering.
@@ -205,45 +205,6 @@ const TABLE: &Table = &BSD;
     target_os = "dragonfly"
 )))]
 const TABLE: &Table = &[];
-
-const fn str_eq(a: &str, b: &str) -> bool {
-    let (a, b) = (a.as_bytes(), b.as_bytes());
-    if a.len() != b.len() {
-        return false;
-    }
-    let mut i = 0;
-    while i < a.len() {
-        if a[i] != b[i] {
-            return false;
-        }
-        i += 1;
-    }
-    true
-}
-
-/// The number of `name` (with `SIG`) in `table`.
-const fn number_of(table: &Table, name: &str) -> Option<i32> {
-    let mut i = 0;
-    while i < table.len() {
-        if str_eq(table[i].0, name) {
-            return Some(table[i].1);
-        }
-        i += 1;
-    }
-    None
-}
-
-/// The canonical name of `number` in `table`: the first entry with that number.
-const fn name_of(table: &Table, number: i32) -> Option<&'static str> {
-    let mut i = 0;
-    while i < table.len() {
-        if table[i].1 == number {
-            return Some(table[i].0);
-        }
-        i += 1;
-    }
-    None
-}
 
 /// The build target's signal numbers, one constant per name `signal!` knows
 /// (`None` where the target lacks the signal). Not public API.

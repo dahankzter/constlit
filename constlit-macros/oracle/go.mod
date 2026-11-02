@@ -5,6 +5,7 @@ go 1.27.3
 require (
 	github.com/containerd/platforms v0.2.1
 	github.com/distribution/reference v0.6.0
+	github.com/docker/go-connections v0.8.2
 	github.com/opencontainers/go-digest v1.0.0
 	k8s.io/apimachinery v0.37.2
 )

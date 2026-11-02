@@ -9,6 +9,7 @@
 //	go run . digest > ../src/testdata/oci_digest.tsv
 //	go run . image > ../src/testdata/oci_image.tsv
 //	go run . platform > ../src/testdata/oci_platform.tsv
+//	go run . port > ../src/testdata/docker_port.tsv
 //
 // Inputs never contain tabs or newlines, so each line splits on tabs.
 package main
@@ -27,6 +28,7 @@ import (
 
 	"github.com/containerd/platforms"
 	"github.com/distribution/reference"
+	"github.com/docker/go-connections/nat"
 	"github.com/opencontainers/go-digest"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/labels"
@@ -48,7 +50,7 @@ func depVersion(path string) string {
 
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Fprintln(os.Stderr, "usage: constlit-oracle quantity|names|selector|digest|image|platform")
+		fmt.Fprintln(os.Stderr, "usage: constlit-oracle quantity|names|selector|digest|image|platform|port")
 		os.Exit(2)
 	}
 	// The first line names what produced the verdicts.
@@ -61,6 +63,8 @@ func main() {
 		fmt.Printf("# github.com/distribution/reference %s\n", depVersion("github.com/distribution/reference"))
 	case "platform":
 		fmt.Printf("# github.com/containerd/platforms %s, %s\n", depVersion("github.com/containerd/platforms"), runtime.Version())
+	case "port":
+		fmt.Printf("# github.com/docker/go-connections %s\n", depVersion("github.com/docker/go-connections"))
 	}
 	switch os.Args[1] {
 	case "quantity":
@@ -75,6 +79,8 @@ func main() {
 		images()
 	case "platform":
 		platformsFixture()
+	case "port":
+		ports()
 	default:
 		fmt.Fprintln(os.Stderr, "unknown subcommand", os.Args[1])
 		os.Exit(2)
@@ -461,5 +467,54 @@ func platformsFixture() {
 			continue
 		}
 		fmt.Printf("parse\t%s\tok\t%s\n", s, platforms.Format(platforms.Normalize(p)))
+	}
+}
+
+// Port mapping inputs: the plan's tables and probes plus generated ones.
+func ports() {
+	fixed := []string{
+		"", "80", "8080:80", "127.0.0.1:8080:80", "127.0.0.1::80", "[::1]:8080:80", "::1:8080:80",
+		"8000-8010:8000-8010", "8000-8010:80", "8000:80-90", "8000-8001:80-82", "0:80", "80:0",
+		"8080:80/TCP", "8080:80/udp", "8080:80/sctp", "8080:80/icmp", "65536:80", "90-80:90-80",
+		"8080:", ":80", "1.2.3.4:80", "localhost:8080:80", "8080:80/", "a:b:c:d", "8080 :80",
+		"080:80", "+80", "80x", "[::1]::80", "0.0.0.0:80:80/udp", " 80", "80 ",
+		"[::1]:80", "127.0.0.1:80", "080:80/", "8080: 80/TCP", "::80", "[]:80:80", "1-", "/",
+		"/udp", "[1.2.3.4]:80:80", "0:80/", ":80/", "::1:80:80/", "[::1]:65535", "[::1]:80/sctp",
+	}
+	r := rand.New(rand.NewSource(7))
+	ips := []string{"", "", "", "127.0.0.1:", "[::1]:", "::1:", "0.0.0.0:", "localhost:"}
+	nums := []string{"80", "8080", "443", "1", "65535", "8000", "9000", "0", "65536", "080", "8x"}
+	port := func() string {
+		p := nums[r.Intn(len(nums))]
+		if r.Intn(4) == 0 {
+			p += "-" + nums[r.Intn(len(nums))]
+		}
+		return p
+	}
+	protos := []string{"", "", "", "/tcp", "/udp", "/sctp", "/TCP", "/icmp"}
+	inputs := fixed
+	for i := 0; i < 2000; i++ {
+		s := ips[r.Intn(len(ips))]
+		if s != "" || r.Intn(2) == 0 {
+			if r.Intn(5) == 0 {
+				s += ":"
+			} else {
+				s += port() + ":"
+			}
+		}
+		s += port() + protos[r.Intn(len(protos))]
+		inputs = append(inputs, s)
+	}
+	for _, s := range inputs {
+		ms, err := nat.ParsePortSpec(s)
+		if err != nil {
+			fmt.Printf("%s\terr\n", s)
+			continue
+		}
+		var parts []string
+		for _, m := range ms {
+			parts = append(parts, fmt.Sprintf("%s|%s|%s", m.Binding.HostIP, m.Binding.HostPort, m.Port))
+		}
+		fmt.Printf("%s\tok\t%s\n", s, strings.Join(parts, " "))
 	}
 }

@@ -38,6 +38,8 @@ pub fn split(s: &str) -> Result<(&str, &str), String> {
     }
     if s.contains(char::is_whitespace) {
         let joined: String = s.split_whitespace().collect();
+        // Offer the joined quantity only when it is valid; otherwise report its problem.
+        parse_quantity(&joined)?;
         return Err(format!(r#"remove the space: "{joined}""#));
     }
     let unsigned = s.strip_prefix(['+', '-']).unwrap_or(s);
@@ -357,6 +359,10 @@ mod tests {
             ),
             (" 1Gi", "remove the spaces around the literal".into()),
             ("1 Gi", r#"remove the space: "1Gi""#.into()),
+            (
+                "1 K",
+                r#""K" is not a suffix; write "k" (1000) or "Ki" (1024)"#.into(),
+            ),
             ("Gi", number.into()),
             (".", number.into()),
             ("+", number.into()),

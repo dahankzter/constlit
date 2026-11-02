@@ -85,12 +85,14 @@ mod cron;
 #[cfg(any(feature = "jiff", feature = "chrono"))]
 mod cron_time;
 mod date;
+pub mod docker;
 pub mod k8s;
 pub mod linux;
 mod mac;
 mod media_type;
 pub mod oci;
 mod size;
+mod table;
 mod time_of_day;
 mod timestamp;
 pub mod unix;

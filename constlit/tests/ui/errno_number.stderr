@@ -1,0 +1,5 @@
+error: errno numbers differ between architectures; write the name, e.g. "ENOENT" (2 on most Linux targets)
+ --> tests/ui/errno_number.rs:2:37
+  |
+2 |     let _ = constlit::linux::errno!("2");
+  |                                     ^^^

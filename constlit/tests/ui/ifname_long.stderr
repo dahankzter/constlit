@@ -1,0 +1,5 @@
+error: interface names are at most 15 bytes; this one has 16
+ --> tests/ui/ifname_long.rs:2:38
+  |
+2 |     let _ = constlit::linux::ifname!("abcdefghijklmnop");
+  |                                      ^^^^^^^^^^^^^^^^^^

@@ -1,0 +1,5 @@
+error: major number 4096 is out of range (0-4095)
+ --> tests/ui/dev_major.rs:2:35
+  |
+2 |     let _ = constlit::linux::dev!("4096:0");
+  |                                   ^^^^^^^^
