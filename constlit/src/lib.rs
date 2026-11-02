@@ -1,5 +1,63 @@
-//! Compile-time checked literals that become typed constants.
+//! Readable string literals that become typed constants at compile time.
+//!
+//! Each macro parses its literal while your crate compiles. A malformed literal is a
+//! compile error on the string that says what is wrong and suggests a valid one; a
+//! valid literal becomes a constant of a real type, with nothing parsed, allocated
+//! or looked up at run time.
+//!
+//! ```
+//! use constlit::{ByteSize, CronSpec, Ipv4Cidr, ZonedTimestamp, cidr, cron, dur, size, ts};
+//! use core::time::Duration;
+//!
+//! const TIMEOUT: Duration = dur!("1h30m");
+//! const LIMIT: ByteSize = size!("64 KiB");
+//! const PRIVATE: Ipv4Cidr = cidr!("10.0.0.0/8");
+//! const NIGHTLY: CronSpec = cron!("0 3 * * *");
+//! # #[cfg(feature = "tz")] {
+//! const LAUNCH: ZonedTimestamp = ts!("2026-10-30 14:00 Europe/Stockholm");
+//! assert_eq!(LAUNCH.offset_seconds(), 3600);
+//! # }
+//!
+//! assert!(PRIVATE.contains(constlit::ip!("10.1.2.3")));
+//! assert!(NIGHTLY.matches(0, 3, 30, 10, 5));
+//! ```
+//!
+//! | macro | value |
+//! |---|---|
+//! | [`dur!`] | [`core::time::Duration`] |
+//! | [`size!`] | [`ByteSize`] |
+//! | [`ip!`] | [`core::net::Ipv4Addr`] or [`Ipv6Addr`](core::net::Ipv6Addr), by literal |
+//! | [`addr!`] | [`core::net::SocketAddrV4`] or [`SocketAddrV6`](core::net::SocketAddrV6), by literal |
+//! | [`cidr!`] | [`Ipv4Cidr`] or [`Ipv6Cidr`], by literal |
+//! | [`version!`] | [`Version`] |
+//! | [`mime!`] | [`MediaType`] |
+//! | [`cron!`] | [`CronSpec`] |
+//! | [`date!`] | [`Date`] |
+//! | [`time!`] | [`TimeOfDay`] |
+//! | [`ts!`] | [`Timestamp`], or [`ZonedTimestamp`] for a named zone |
+//!
+//! Literals are strict: one that could mean two things, like `"64 kb"` (1000 or 1024
+//! bytes?) or a local time that happens twice when the clocks go back, is an error
+//! rather than a guess. Each macro's page lists its rules.
+//!
+//! # Features
+//!
+//! - `tz` (default): named time zones in [`ts!`], resolved at compile time from the IANA
+//!   database bundled with jiff. Only the proc macro uses jiff.
+//! - `std`: [`Timestamp::to_system_time`].
+//! - `jiff`, `chrono`: `CronSpec::next_after` for those crates' date-times, and
+//!   `to_jiff` / `to_chrono` conversions of the date and time types.
+//! - `ipnet`, `semver`, `mime`: conversions to those crates' types (`mime` needs `std`).
+//!
+//! The crate is `no_std`, allocates nothing, and contains no `unsafe`.
 #![no_std]
+#![forbid(unsafe_code)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
+// The README's examples run as doctests; they use a named zone.
+#[cfg(all(doctest, feature = "tz"))]
+#[doc = include_str!("../../README.md")]
+struct ReadmeDoctests;
 
 #[cfg(feature = "mime")]
 extern crate alloc;

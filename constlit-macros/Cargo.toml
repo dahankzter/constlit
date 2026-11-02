@@ -1,6 +1,7 @@
 [package]
 name = "constlit-macros"
-description = "Procedural macros for constlit"
+description = "Procedural macros for constlit. Use the constlit crate instead."
+documentation = "https://docs.rs/constlit"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

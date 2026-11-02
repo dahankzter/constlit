@@ -1,4 +1,5 @@
 //! Procedural macros for `constlit`. Use them through the `constlit` crate.
+#![forbid(unsafe_code)]
 
 mod cron;
 #[cfg(test)]
