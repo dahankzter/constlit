@@ -74,7 +74,7 @@
 #[doc = include_str!("../../README.md")]
 struct ReadmeDoctests;
 
-#[cfg(any(feature = "mime", feature = "k8s-openapi"))]
+#[cfg(any(feature = "mime", feature = "k8s-openapi", feature = "semver"))]
 extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
@@ -97,6 +97,7 @@ mod time_of_day;
 mod timestamp;
 pub mod unix;
 mod version;
+mod version_req;
 mod zoned;
 
 pub use cidr::{Cidr, CidrError, Ipv4Cidr, Ipv6Cidr};
@@ -110,6 +111,7 @@ pub use size::ByteSize;
 pub use time_of_day::TimeOfDay;
 pub use timestamp::Timestamp;
 pub use version::Version;
+pub use version_req::{Comparator, Op, VersionReq};
 pub use zoned::ZonedTimestamp;
 
 /// A duration literal, checked at compile time, as a [`core::time::Duration`].
@@ -245,6 +247,27 @@ pub use constlit_macros::mac;
 /// let _ = constlit::version!("v1.2.3");
 /// ```
 pub use constlit_macros::version;
+
+/// A Cargo version requirement, checked at compile time, as a [`VersionReq`].
+///
+/// Cargo's syntax, as the `semver` crate parses it: comparators `=`, `>`, `>=`,
+/// `<`, `<=`, `~` and `^` (a bare version means `^`), wildcards (`1.*`, `1.2.x`,
+/// `*`), and several comparators separated by commas. Build metadata, which
+/// requirements ignore, is a compile error. Matching follows Cargo, including its
+/// rule that pre-releases match only when a comparator opts in.
+///
+/// ```
+/// use constlit::{Version, VersionReq, version, version_req};
+/// const SUPPORTED: VersionReq = version_req!(">=1.2, <2");
+/// assert!(SUPPORTED.matches(&version!("1.4.0")));
+/// assert!(!SUPPORTED.matches(&version!("2.0.0")));
+/// assert!(!SUPPORTED.matches(&version!("1.5.0-beta.1")));
+/// ```
+///
+/// ```compile_fail
+/// let _ = constlit::version_req!(">=1.2 <2"); // comparators need a comma
+/// ```
+pub use constlit_macros::version_req;
 
 /// A media type literal (MIME type), checked at compile time, as a [`MediaType`].
 ///

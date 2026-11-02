@@ -1,0 +1,5 @@
+error: separate comparators with ",": ">=1.2, <2"
+ --> tests/ui/version_req_space.rs:2:36
+  |
+2 |     let _ = constlit::version_req!(">=1.2 <2");
+  |                                    ^^^^^^^^^^

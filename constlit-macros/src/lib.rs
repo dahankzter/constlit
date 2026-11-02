@@ -27,6 +27,7 @@ mod size;
 mod suggest;
 mod ts;
 mod version;
+mod version_req;
 #[cfg(feature = "tz")]
 mod zone;
 
@@ -449,6 +450,40 @@ pub fn ts(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                 #zone
             )),
         })
+    })
+    .into()
+}
+
+/// A Cargo version requirement literal as a `constlit::VersionReq` constant.
+#[proc_macro]
+pub fn version_req(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    input::expand(input.into(), "\">=1.2, <2\"", |s| {
+        let comparators = version_req::parse_version_req(s)?.into_iter().map(|c| {
+            let op = match c.op {
+                "=" => quote!(Exact),
+                ">" => quote!(Greater),
+                ">=" => quote!(GreaterEq),
+                "<" => quote!(Less),
+                "<=" => quote!(LessEq),
+                "~" => quote!(Tilde),
+                "*" => quote!(Wildcard),
+                _ => quote!(Caret),
+            };
+            let option = |n: Option<u64>| match n {
+                Some(n) => quote!(::core::option::Option::Some(#n)),
+                None => quote!(::core::option::Option::None),
+            };
+            let (major, minor, patch, pre) = (c.major, option(c.minor), option(c.patch), c.pre);
+            quote!(::constlit::Comparator::__new_unchecked(
+                ::constlit::Op::#op, #major, #minor, #patch, #pre
+            ))
+        });
+        // A named const item, so the comparator slice is 'static in any position.
+        Ok(quote!({
+            const __CONSTLIT_VERSION_REQ: ::constlit::VersionReq =
+                ::constlit::VersionReq::__new_unchecked(&[#(#comparators),*], #s);
+            __CONSTLIT_VERSION_REQ
+        }))
     })
     .into()
 }

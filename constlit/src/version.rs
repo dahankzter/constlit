@@ -74,7 +74,7 @@ impl Version {
 }
 
 /// SemVer precedence of two pre-release strings; `""` (a release) ranks highest.
-fn cmp_pre(a: &str, b: &str) -> Ordering {
+pub(crate) fn cmp_pre(a: &str, b: &str) -> Ordering {
     match (a.is_empty(), b.is_empty()) {
         (true, true) => return Ordering::Equal,
         (true, false) => return Ordering::Greater,

@@ -85,13 +85,13 @@ fn parse_core(s: &str, core: &str) -> Result<[u64; 3], String> {
 }
 
 #[derive(Clone, Copy, PartialEq)]
-enum Part {
+pub(crate) enum Part {
     Pre,
     Build,
 }
 
 /// Checks the dot-separated identifiers after `-` or `+`.
-fn check_identifiers(core: &str, text: &str, part: Part) -> Result<(), String> {
+pub(crate) fn check_identifiers(core: &str, text: &str, part: Part) -> Result<(), String> {
     let name = match part {
         Part::Pre => "pre-release",
         Part::Build => "build metadata",
